@@ -1,0 +1,22 @@
+{
+  "name": "b00k1ng.com",
+  "version": "1.0.0",
+  "description": "Booking.com Messenger Bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://dumpstergoon@github.com/dumpstergoon/B00k1ng.com.git"
+  },
+  "author": "Graham Robertson & Louisette Baillie",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/dumpstergoon/B00k1ng.com/issues"
+  },
+  "homepage": "https://github.com/dumpstergoon/B00k1ng.com#readme",
+  "dependencies": {
+    "express": "^4.16.4"
+  }
+}
