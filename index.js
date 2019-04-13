@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const request = require("request");
 
+const layouts = require('express-ejs-layouts');
 const body_parser = require("body-parser");
 const cookie_parser = require("cookie-parser");
 
@@ -445,6 +446,7 @@ const receive = {
 	Hook everything together!!
 
 */
+app.use(layouts);
 app.use(body_parser.json());
 app.use(body_parser.urlencoded({
 	extended: false
