@@ -16,6 +16,8 @@ const cookie_parser = require("cookie-parser");
 	I can't be arsed dividing this up into different files...
 
 	TODO:
+		- Let's make sure it's robust....
+		- We'll start on APIs at about 11pm
 		- Go through each step and screen via Booking.com APIs.......
 
 */
@@ -137,13 +139,13 @@ const models = {
 				call_to_actions: buttons
 			};
 		},
-		url: (label, url, size = SIZE.TALL) => { //, share = false) => {
+		url: (label, url, size = SIZE.TALL, share = false) => {
 			return {
 				title: label,
 				type: BUTTON.URL,
 				url: url,
 				webview_height_ratio: size,
-				//webview_share_button: share,
+				webview_share_button: share,
 				messenger_extensions: true
 			};
 		},
