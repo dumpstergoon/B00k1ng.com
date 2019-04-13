@@ -15,10 +15,15 @@ const cookie_parser = require("cookie-parser");
 
 	I can't be arsed dividing this up into different files...
 
+	TODO:
+		- Go through each step and screen via Booking.com APIs.......
+
 */
 const DEV_MODE = true;
+const DOMAIN = "https://b00k1ng.com";
 const PORT = 3000;
 const OK = 200;
+const BAD = 403;
 
 const MESSENGER_API = "https://graph.facebook.com/v2.6/me/";
 const BOOKING_API = "https://distribution-xml.booking.com/2.0/json/";
@@ -26,8 +31,8 @@ const BOOKING_API = "https://distribution-xml.booking.com/2.0/json/";
 const APP_ID = 417588018987362;
 const APP_SECRET = "b00k1ng.b0t"
 const PAGE_ACCESS_TOKEN = require("./TOKEN.js");
-
-const WHITELIST = ["https://b00k1ng.com", "https://www.b00k1ng.com"];
+const HOME_URL = DOMAIN + "group";
+const WHITELIST = [DOMAIN];
 
 const DEFAULT = "default";
 const SHOW = "show";
@@ -84,6 +89,7 @@ const TAG = {
 
 // Makes an array if item isn't one.
 const ARRAY = item => [].concat(item);
+const URL = path => DOMAIN + path;
 
 /*
 
@@ -103,7 +109,7 @@ const models = {
 					payload: POSTBACKS.GET_STARTED
 				},
 				home_url: {
-					url: WHITELIST[0],
+					url: HOME_URL,
 					webview_height_ratio: SIZE.TALL,
 					webview_share_button: SHOW,
 					in_test: DEV_MODE
@@ -318,17 +324,10 @@ const api = {
 			method: "POST",
 			json: data || {}
 		}, (err, res, body) => {
-			if (!err && res.statusCode === OK) {
-				console.log("API SUCCESS:", JSON.stringify(body));
-				success(res, body);
-			} else {
-				console.error("API ERROR:",
-					res.statusCode,
-					res.statusMessage,
-					body.error,
-					params);
-			}
-			failure(res, body);
+			if (!err && res.statusCode === OK)
+				success ? success(res, body) : console.log("API SUCCESS:", body);
+			else
+				failure ? failure(res, body) : console.error("API ERROR:", res.statusCode, res.statusMessage, body.error, params);
 		});
 	},
 	messenger: (end_point, params, data) => {
@@ -445,6 +444,19 @@ app.set("view engine", "ejs");
 app.get('/', (req, res) => {
 	res.send("Hello, World.");
 });
+
+app.get('/trips', (req, res) => {
+	res.send("Trips.");
+});
+
+app.get('/help', (req, res) => {
+	res.send("Help Page.");
+});
+
+app.get('/group', (req, res) => {
+	res.send("Group chat extension.");
+});
+
 // We should make a wee API for testing these messages.
 app.route("/webhook")
 	.get((req, res) => {
@@ -457,11 +469,11 @@ app.route("/webhook")
 		if (mode && token) {
 			if (mode === 'subscribe' && token === APP_SECRET) {
 				console.log("VERIFIED: Webhook", APP_SECRET);
-				res.status(200).send(challenge);
+				res.status(OK).send(challenge);
 			}
 		} else {
 			console.error("FAILED. Webhook did not validate.");
-			res.status(403).send("Bad Request.");
+			res.status(BAD).send("Bad Request.");
 		}
 	})
 	.post((req, res) => {
@@ -489,6 +501,15 @@ app.route("/webhook")
 			});
 		}
 	});
+
+api.profile(models.profile.config(
+	"Howdy! I'm B00k1ng B0t and I'll help you book through Booking.com for your next trip. Let's get started!",
+	models.profile.menu([
+		models.buttons.postback("Get Started", POSTBACKS.GET_STARTED),
+		models.buttons.url("My Trips", URL("/trips")),
+		models.buttons.url("Help", URL("/help"))
+	])
+));
 
 app.listen(PORT, () => {
 	console.log("b00k1ng b0t - ONLINE.");
