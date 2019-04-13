@@ -412,7 +412,7 @@ const receive = {
 		let message = event.message;
 		console.log("RECEIVED MESSAGE:", psid, message);
 
-		send.read_receipt(psid);
+		//send.read_receipt(psid);
 	},
 	postback: event => {
 		let psid = event.psid;
