@@ -31,12 +31,13 @@ const BOOKING_API = "https://distribution-xml.booking.com/2.0/json/";
 const APP_ID = 417588018987362;
 const APP_SECRET = "b00k1ng.b0t"
 const PAGE_ACCESS_TOKEN = require("./TOKEN.js");
-const HOME_URL = DOMAIN + "group";
+const HOME_URL = DOMAIN + "/group";
 const WHITELIST = [DOMAIN];
 
 const DEFAULT = "default";
 const SHOW = "show";
 const HIDE = "hide";
+const ALL = "all";
 const SIZE = {
 	COMPACT: "compact",
 	TALL: "tall",
@@ -116,7 +117,7 @@ const models = {
 				},
 				whitelisted_domains: WHITELIST,
 				target_audience: {
-					audience_type: "all"
+					audience_type: ALL
 				}
 			};
 		},
@@ -318,6 +319,7 @@ const models = {
 */
 const api = {
 	_: (uri, params, data, success, failure) => {
+		console.log(uri);
 		request({
 			uri: uri,
 			qs: params || {},
