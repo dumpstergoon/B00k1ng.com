@@ -1,0 +1,137 @@
+/*
+
+	FONTS:
+
+	Body Text:
+	Trebuchet MS, Helvetica, Arial, Sans-Serif
+
+	Headers:
+	Segoe UI, Tahoma, Open Sans, Verdana, Sans-Serif
+
+	Aux:
+	??
+*/
+
+@font-face {
+	font-family:'Segoe UI';
+	font-style:normal;
+	font-weight:normal;
+	src:url('assets/fonts/segoe_ui_regular.ttf');
+}
+
+@font-face {
+	font-family:'Segoe UI';
+	font-style:italic;
+	font-weight:normal;
+	src:url('assets/fonts/segoe_ui_italic.ttf');
+}
+
+@font-face {
+	font-family:'Segoe UI';
+	font-style:normal;
+	font-weight:bold;
+	src:url('assets/fonts/segoe_ui_bold.ttf');
+}
+
+@font-face {
+	font-family:'Segoe UI';
+	font-style:italic;
+	font-weight:bold;
+	src:url('assets/fonts/segoe_ui_bold_italic.ttf');
+}
+
+/*
+
+	THEME:	
+
+	Booking Blue: #003681 (backgrounds, headers, ...)
+	Com Blue: #32a0e1 (buttons, links, ...)
+
+	Off-White: #fefdf7 (page colour, text, ...)
+	Black: #000000
+	Text: #383838
+
+	Cadium Yellow: #febb02 (Module background colour, input focus border, ...)
+	Warn Yellow: #ffe9ab (Background colour for side-notes or warnings)
+	Beige: #b75f00 (side-note or warning text colour)
+	Light Beige: #faf3eb (background colour for close-able
+	Orange: #ee811c
+	Blood Orange: #fe6226
+
+	Error Red: #e21111
+	Light Red: #ffa9a9
+	Pink: #fae1e1
+
+	Good Green: #0ab21b
+
+
+*/
+
+
+body {
+	background-color:#003681;
+	color:#fefdf7;
+	font-family:'Trebuchet MS', Helvetica, Arial, Sans-Serif;
+	font-size:100%;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/*
+
+	Components
+
+*/
+.Screen {
+	position:absolute;
+	top:0;
+	left:0;
+	width:100%;
+	min-height:100%;
+}
+
+@keyframes spin {
+	0% {
+		transform:rotate(0deg);
+	}
+	50% {
+		transform:rotate(320deg);
+	}
+	100% {
+		transform:rotate(359deg);
+	}
+}
+.Spinner {
+	color:#32a0e1;
+	width:1em;
+	height:1em;
+	border:4px solid;
+	border-left:4px solid transparent;
+	border-radius:50%;
+
+	animation:spin 1s linear 0s infinite;
+}
+
+/*
+
+	Screens
+
+*/
+
+#loading_screen {
+	display:flex;
+	flex-direction:column;
+	align-items:center;
+	justify-content:center;
+}
+
+#loading_screen img {
+	max-width:80%;
+	margin-bottom:10pt;
+}
+
+#loading_screen .Spinner {
+	font-size:10vw;
+}

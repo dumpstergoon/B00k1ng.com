@@ -329,7 +329,6 @@ const models = {
 */
 const api = {
 	_: (uri, params, data, success, failure) => {
-		console.log(uri);
 		request({
 			uri: uri,
 			qs: params || {},
@@ -446,6 +445,11 @@ const receive = {
 	Hook everything together!!
 
 */
+if (DEV_MODE) {
+	app.use('/css', express.static(__dirname + '/css'));
+	app.use('/assets', express.static(__dirname + '/assets'));
+}
+
 app.use(layouts);
 app.use(body_parser.json());
 app.use(body_parser.urlencoded({
@@ -517,14 +521,16 @@ app.route("/webhook")
 		}
 	});
 
-api.profile(models.profile.config(
-	"Howdy! I'm B00k1ng B0t and I'll help you book through Booking.com for your next trip. Let's get started!",
-	models.profile.menu([
-		models.buttons.postback("Get Started", POSTBACKS.GET_STARTED),
-		models.buttons.menu("My Trips", URL("/trips")),
-		models.buttons.menu("Help", URL("/help"))
-	])
-));
+if (!DEV_MODE) {
+	api.profile(models.profile.config(
+		"Howdy! I'm B00k1ng B0t and I'll help you book through Booking.com for your next trip. Let's get started!",
+		models.profile.menu([
+			models.buttons.postback("Get Started", POSTBACKS.GET_STARTED),
+			models.buttons.menu("My Trips", URL("/trips")),
+			models.buttons.menu("Help", URL("/help"))
+		])
+	));
+}
 
 app.listen(PORT, () => {
 	console.log("b00k1ng b0t - ONLINE.");
