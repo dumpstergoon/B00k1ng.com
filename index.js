@@ -454,17 +454,18 @@ app.set("view engine", "ejs");
 
 
 app.get('/', (req, res) => {
-	res.send("Hello, World.");
+	res.render("index");
 });
 
 app.get('/trips', (req, res) => {
-	res.send("Trips.");
+	res.render("trips");
 });
 
 app.get('/help', (req, res) => {
-	res.send("Help Page.");
+	res.render("help");
 });
 
+// TODO: Group chat.
 app.get('/group', (req, res) => {
 	res.send("Group chat extension.");
 });
