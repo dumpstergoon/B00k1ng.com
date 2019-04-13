@@ -158,21 +158,25 @@ const models = {
 		action: (psid, action = ACTION.DONE) => {
 			return {
 				messaging_type: MESSAGE.UPDATE,
-				recipient: models.recipient(psid),
+				recipient: {
+					id: psid
+				},
 				sender_action: action
 			};
 		},
 		message: (psid, message, type = MESSAGE.RESPONSE) => {
 			return Object.assign({
 				messaging_type: type,
-				recipient: models.recipient(psid),
+				recipient: {
+					id: psid
+				},
 				message: message || {
 					text: "Hello. I wasn't told what to say to you."
 				}
 			});
 		},
 		subscription: (psid, message, tag = TAG.NON_PROMOTIONAL_SUBSCRIPTION) => {
-			return Object.assign(models.message_request(psid, message, MESSAGE.SUBSCRIPTION), {
+			return Object.assign(models.requests.message(psid, message, MESSAGE.SUBSCRIPTION), {
 				tag: tag
 			});
 		},
