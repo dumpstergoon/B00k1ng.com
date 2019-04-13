@@ -111,7 +111,7 @@ const models = {
 				home_url: {
 					url: HOME_URL,
 					webview_height_ratio: SIZE.TALL,
-					webview_share_button: SHOW,
+					//webview_share_button: SHOW,
 					in_test: DEV_MODE
 				},
 				whitelisted_domains: WHITELIST,
@@ -136,13 +136,13 @@ const models = {
 				call_to_actions: buttons
 			};
 		},
-		url: (label, url, size = SIZE.TALL, share = false) => {
+		url: (label, url, size = SIZE.TALL) => { //, share = false) => {
 			return {
 				title: label,
 				type: BUTTON.URL,
 				url: url,
 				webview_height_ratio: size,
-				webview_share_button: share,
+				//webview_share_button: share,
 				messenger_extensions: true
 			};
 		},
