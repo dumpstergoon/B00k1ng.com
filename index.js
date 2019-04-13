@@ -422,11 +422,12 @@ const receive = {
 		send.read_receipt(psid);
 	},
 	postback: event => {
-		let psid = event.psid;
+		let psid = event.sender.id;
 		let data = event.postback.payload;
 
 		console.log(psid, data);
 
+		send.read_receipt(psid)
 		// DO SOMETHING WITH THE POSTBACK... USUALLY YOU GOTTA SEND SOMETHIN'
 	}
 };
