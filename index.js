@@ -408,7 +408,7 @@ const send = {
 
 const receive = {
 	message: event => {
-		let psid = event.senderId;
+		let psid = event.sender.id;
 		let message = event.message;
 		console.log("RECEIVED MESSAGE:", psid, message);
 
