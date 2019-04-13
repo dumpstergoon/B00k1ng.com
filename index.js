@@ -19,9 +19,13 @@ const cookie_parser = require("cookie-parser");
 const DEV_MODE = true;
 const PORT = 3000;
 const OK = 200;
+
 const MESSENGER_API = "https://graph.facebook.com/v2.6/me/";
 const BOOKING_API = "https://distribution-xml.booking.com/2.0/json/";
-const PAGE_ACCESS_TOKEN = require("./token.js");
+
+const APP_ID = 417588018987362;
+const PAGE_ACCESS_TOKEN = require("./TOKEN.js");
+
 const WHITELIST = ["https://b00k1ng.com", "https://www.b00k1ng.com"];
 
 const DEFAULT = "default";
@@ -431,16 +435,25 @@ app.use(body_parser.urlencoded({
 }));
 app.use(cookie_parser());
 app.set("view engine", "ejs");
+
+
 app.get('/', (req, res) => {
 	res.send("Hello, World.");
 });
-
+// We should make a wee API for testing these messages.
 app.route("/webhook")
 	.get((req, res) => {
-		if (req.query["hub.verify_token"] === PAGE_ACCESS_TOKEN)
-			res.send(req.query["hub.challenge"]);
-		else
-			res.send("Oops. Wrong token.");
+		let mode = req.query['hub.mode'];
+		let token = req.query['hub.verify_token'];
+		let challenge = req.query['hub.challenge'];
+
+		if (mode && token) {
+			if (mode === 'subscribe' && token === "b00k1ng.b0t") {
+				console.log("VERIFIED: Webhook b00k1ng.b0t");
+				res.status(200).send(challenge);
+			}
+		}
+		res.status(403).send("Bad Request.");
 	})
 	.post((req, res) => {
 		res.sendStatus(OK);
