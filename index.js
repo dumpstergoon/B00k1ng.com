@@ -24,6 +24,7 @@ const MESSENGER_API = "https://graph.facebook.com/v2.6/me/";
 const BOOKING_API = "https://distribution-xml.booking.com/2.0/json/";
 
 const APP_ID = 417588018987362;
+const APP_SECRET = "b00k1ng.b0t"
 const PAGE_ACCESS_TOKEN = require("./TOKEN.js");
 
 const WHITELIST = ["https://b00k1ng.com", "https://www.b00k1ng.com"];
@@ -447,13 +448,17 @@ app.route("/webhook")
 		let token = req.query['hub.verify_token'];
 		let challenge = req.query['hub.challenge'];
 
+		console.log("VERIFY:", mode, token, challenge);
+
 		if (mode && token) {
-			if (mode === 'subscribe' && token === "b00k1ng.b0t") {
-				console.log("VERIFIED: Webhook b00k1ng.b0t");
+			if (mode === 'subscribe' && token === APP_SECRET) {
+				console.log("VERIFIED: Webhook", APP_SECRET);
 				res.status(200).send(challenge);
 			}
+		} else {
+			console.error("FAILED. Webhook did not validate.");
+			res.status(403).send("Bad Request.");
 		}
-		res.status(403).send("Bad Request.");
 	})
 	.post((req, res) => {
 		res.sendStatus(OK);
