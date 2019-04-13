@@ -17,6 +17,10 @@
   },
   "homepage": "https://github.com/dumpstergoon/B00k1ng.com#readme",
   "dependencies": {
-    "express": "^4.16.4"
+    "body-parser": "^1.18.3",
+    "cookie-parser": "^1.4.4",
+    "ejs": "^2.6.1",
+    "express": "^4.16.4",
+    "request": "^2.88.0"
   }
 }
