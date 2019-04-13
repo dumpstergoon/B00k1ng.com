@@ -139,15 +139,22 @@ const models = {
 				call_to_actions: buttons
 			};
 		},
-		url: (label, url, size = SIZE.TALL, share = false) => {
+		menu: (label, url, size = SIZE.TALL) => {
 			return {
 				title: label,
 				type: BUTTON.URL,
 				url: url,
 				webview_height_ratio: size,
-				webview_share_button: share,
 				messenger_extensions: true
 			};
+		},
+		url: (label, url, size = SIZE.TALL, share = false) => {
+			return Object.assign(
+				models.buttons.menu(label, url, size),
+				{
+					webview_share_button: share
+				}
+			);
 		},
 		postback: (label, payload) => {
 			return {
@@ -511,8 +518,8 @@ api.profile(models.profile.config(
 	"Howdy! I'm B00k1ng B0t and I'll help you book through Booking.com for your next trip. Let's get started!",
 	models.profile.menu([
 		models.buttons.postback("Get Started", POSTBACKS.GET_STARTED),
-		models.buttons.url("My Trips", URL("/trips")),
-		models.buttons.url("Help", URL("/help"))
+		models.buttons.menu("My Trips", URL("/trips")),
+		models.buttons.menu("Help", URL("/help"))
 	])
 ));
 
