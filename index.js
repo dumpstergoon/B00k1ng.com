@@ -116,7 +116,7 @@ const SCRIPTS = {
 	DATE_RETRY: "Sorry, didn't quite catch that... 😕️",
 
 	HOW_MANY_NIGHTS: "How long is your visit? ",
-	NIGHTS_SUCCESS: "Almost there!",
+	NIGHTS_SUCCESS: "Almost there! 🏁️",
 	NIGHTS_RETRY: "Oops. Be sure to put a number!",
 	NIGHTS_CONFIRM: "Is this correct?? ",
 	NIGHTS_DENIED: "How embarassing. I'll try again.",
@@ -664,6 +664,7 @@ const state = {
 		_checkout: Date.now(),
 		[POSTBACKS.YES]: psid => {
 			send.text(psid, SCRIPTS.NIGHTS_SUCCESS);
+			setTimeout(() => send.text(psid, SCRIPTS.NUMBER_OF_GUESTS), 1500);
 			return state.guests;
 		},
 		[POSTBACKS.NO] : psid => {
@@ -698,8 +699,18 @@ const state = {
 				}
 			}
 
+			/*
+			
+				Do some light debugging here and then move-on....
+
+			*/
+
 			let checkin = state.travel_date._checkin;
 			let checkout = state.duration._checkout = new Date(checkin.getMilliseconds() + (nights * 1000 * 60 * 60 * 24))
+
+			console.log("========================================");
+			console.log(checkin, checkout);
+			console.log("========================================");
 
 			send.text(psid, `Check-in: ${DATE(checkin)}`);
 			setTimeout(() => {
