@@ -98,7 +98,7 @@ const SCRIPTS = {
 	WELCOME_TITLE: "Hi I'm b00k1ng b0t 🤖️",
 	WELCOME_MESSAGE: "I'm here to help you plan a trip! 🏖️\
 	I'm especially helpful if you're travelling with a group.\
-	Making decisions will be super easy when you share your trip in you and your friends' group chat.",
+	Making decisions will be super easy when you share your trip in you and your friends' group chat.\n\n",
 	WHERE_ARE_YOU_GOING: "Where are you going? Simply reply with a city name 🧐️",
 	WHEN_ARE_YOU_GOING: "Phew. Glad I got that one right.\
 	When are you going?\
@@ -391,7 +391,12 @@ const api = {
 			BOOKING_API + end_point,
 			params,
 			null,
-			success
+			(res, body) => {
+				console.log("========================================");
+				console.log("BOOKING:", body);
+				console.log("========================================");
+				success(res, body);
+			}
 		);
 	},
 	autocomplete: (text, success) => {
@@ -670,7 +675,7 @@ app.route("/webhook")
 		}
 	});
 
-if (!DEV_MODE) {
+if (DEV_MODE) {
 	api.profile(models.profile.config(
 		SCRIPTS.WELCOME_TITLE + "\n\n" + SCRIPTS.WELCOME_MESSAGE,
 		models.profile.menu([
