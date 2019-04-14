@@ -1,10 +1,16 @@
 const express = require("express");
 const app = express();
-const request = require("request");
 
 const layouts = require('express-ejs-layouts');
 const body_parser = require("body-parser");
 const cookie_parser = require("cookie-parser");
+
+const config = require("./config");
+const models = require("./models");
+
+const api = require("./api");
+const receive = require("./receive");
+const group = require("./group");
 
 /*
 
@@ -14,817 +20,15 @@ const cookie_parser = require("cookie-parser");
 
 	Graham Robertson & Louisette Baillie
 
-	I can't be arsed dividing this up into different files...
-
-	TODO:
-		- Let's make sure it's robust....
-		- We'll start on APIs at about 11pm
-		- Go through each step and screen via Booking.com APIs.......
-
 */
-const DEV_MODE = true;
-const DOMAIN = "https://b00k1ng.com";
-const PORT = 3000;
-const OK = 200;
-const BAD = 403;
-
-const MESSENGER_API = "https://graph.facebook.com/v2.6/me/";
-const BOOKING_API = "https://hackaton_team_graham:B00ndock5!@distribution-xml.booking.com/2.0/json/";
-const PLACES_API = "https://maps.googleapis.com/maps/api/place/findplacefromtext/json";
-const PHOTOS_API = "https://maps.googleapis.com/maps/api/place/photo/";
-
-const APP_ID = 417588018987362;
-const APP_SECRET = "b00k1ng.b0t"
-const PAGE_ACCESS_TOKEN = require("./TOKEN.js");
-const HOME_URL = DOMAIN + "/group";
-const WHITELIST = [DOMAIN, "https://duckduckgo.com"];
-
-const PLACES_KEY = "AIzaSyAKzhe2wmODZQRENcpWXJ0qncxYOtFEG1k";
-
-const DEFAULT = "default";
-const SHOW = "show";
-const HIDE = "hide";
-const ALL = "all";
-const SIZE = {
-	COMPACT: "compact",
-	TALL: "tall",
-	FULL: "full",
-	LARGE: "large"
-};
-const POSTBACKS = {
-	GET_STARTED: "GET_STARTED",
-	YES: "YES",
-	NO: "NO",
-	TRIPS: "TRIPS",
-	HELP: "HELP"
-};
-const ACTION = {
-	MARK_SEEN: "mark_seen",
-	TYPING: "typing_on",
-	DONE: "typing_off"
-};
-const MESSAGE = {
-	RESPONSE: "RESPONSE",
-	UPDATE: "UPDATE",
-	SUBSCRIPTION: "MESSAGE_TAG"
-};
-const ATTACHMENT = {
-	AUDIO: "audio",
-	VIDEO: "video",
-	IMAGE: "image",
-	FILE: "file",
-	TEMPLATE: "template"
-};
-const BUTTON = {
-	URL: "web_url",
-	POSTBACK: "postback",
-	SHARE: "element_share",
-	NESTED: "nested"
-};
-const QUICK_REPLY = {
-	TEXT: "text"
-};
-const TEMPLATE = {
-	GENERIC: "generic",
-	LIST: "list",
-	MEDIA: "media",
-	BUTTON: "button"
-};
-const TAG = {
-	FEATURE_FUNCTION_UPDATE: "FEATURE_FUNCTION_UPDATE",
-	RESERVATION_UPDATE: "RESERVATION_UPDATE",
-	PERSONAL_FINANCE_UPDATE: "PERSONAL_FINANCE_UPDATE",
-	PAYMENT_UPDATE: "PAYMENT_UPDATE",
-	NON_PROMOTIONAL_SUBSCRIPTION: "NON_PROMOTIONAL_SUBSCRIPTION"
-};
-
-const SCRIPTS = {
-	WELCOME_TITLE: "Hi I'm b00k1ng b0t 🤖️",
-	
-	WELCOME_MESSAGE: "I'm here to help you plan a trip! 🏖️\
-	I'm especially helpful if you're travelling with a group.\
-	Making decisions will be super easy when you share your trip in you and your friends' group chat.\n\n",
-	
-	WHERE_ARE_YOU_GOING: "Where are you going? Simply reply with a city name 🧐️",
-	CITY_SEARCHING: "🔎️ Searching... beep-boop-bop",
-	CITY_SUCCESS: "Awesome 😎️ We're good at this!",
-	CITY_RETRY: "Let's try again. Which city are you going to?",
-	
-	WHEN_ARE_YOU_GOING: "So, what is your date of arrival?",
-	DATE_HINT: "(eg. Oct 31, Christmas Eve, ...)",
-	DATE_SUCCESS: "Cool.",
-	DATE_RETRY: "Sorry, didn't quite catch that... 😕️",
-
-	HOW_MANY_NIGHTS: "and your leaving date?",
-	NIGHTS_SUCCESS: "Almost there! 🏁️",
-	NIGHTS_RETRY: "Oops. Give it another go.",
-	NIGHTS_CONFIRM: "Is this correct?? ",
-
-	NUMBER_OF_GUESTS: "How many people are travelling in your group? ✈️",
-	GUESTS_SUCCESS: "Hooray! 🎉️ Creating your trip...",
-	GUESTS_RETRY: "We're so close! Just pass us a whole number between 1 and 100 :)"
-};
-
-const WEATHER = {
-	cloud: "☁️",
-	partlycloud: "🌥️",
-	lightcloud: "🌤️",
-	sun: "☀️",
-	fog: "🌫️",
-	rain: "☔️",
-	rainthunder: "⛈️",
-	lightrain: "🌧️",
-	lightrainsun: "🌦️",
-	lightrainthunder: "⛈️",
-	lightrainthundersun: "⛈️🌥️",
-	snow: "❄️",
-	snowsun: "❄️🌤️",
-	snowthunder: "❄️🌩️",
-	snowsunthunder: "❄️🌩️🌥️",
-	sleet: "🌨️🌧️",
-	sleetsun: "🌨️🌥️",
-	sleetsunthunder: "🌨️🌥️⛈️",
-	sleetthunder: "🌨️⛈️"
-};
-
-const DAYS = [
-	"Sunday",
-	"Monday",
-	"Tuesday",
-	"Wednesday",
-	"Thursday",
-	"Friday",
-	"Saturday"
-];
-
-const MONTHS = [
-	"January",
-	"February",
-	"March",
-	"April",
-	"May",
-	"June",
-	"July",
-	"August",
-	"September",
-	"October",
-	"November",
-	"December"
-];
-
-
-// Makes an array if item isn't one.
-const ARRAY = item => [].concat(item);
-const URL = path => DOMAIN + path;
-const SANITIZE = datestring => datestring.substring(0, datestring.indexOf('T'));
-const DATE = date => `${DAYS[date.getDay()]} ${date.getDate()} ${MONTHS[date.getMonth()]}`;
-const NIGHTS = timespan => {
-	return Math.floor(timespan / 1000 / 60 / 60 / 24);
-};
-
-/*
-
-	Data Structures for APIs
-
-*/
-const models = {
-	profile: {
-		config: (greeting, menu) => {
-			return {
-				persistent_menu: ARRAY(menu),
-				greeting: [{
-					locale: DEFAULT,
-					text: greeting
-				}],
-				get_started: {
-					payload: POSTBACKS.GET_STARTED
-				},
-				home_url: {
-					url: HOME_URL,
-					webview_height_ratio: SIZE.TALL,
-					//webview_share_button: SHOW,
-					in_test: DEV_MODE
-				},
-				whitelisted_domains: WHITELIST,
-				target_audience: {
-					audience_type: ALL
-				}
-			};
-		},
-		menu: buttons => {
-			return {
-				call_to_actions: buttons,
-				locale: DEFAULT,
-				disabled_surfaces: "customer_chat_plugin"
-			};
-		}
-	},
-	buttons: {
-		submenu: (label, buttons) => {
-			return {
-				title: label,
-				type: BUTTON.NESTED,
-				call_to_actions: buttons
-			};
-		},
-		menu: (label, url, size = SIZE.TALL) => {
-			return {
-				title: label,
-				type: BUTTON.URL,
-				url: url,
-				webview_height_ratio: size,
-				messenger_extensions: true
-			};
-		},
-		click: (url, size = SIZE.TALL, share = HIDE) => {
-			return {
-				type: BUTTON.URL,
-				url: url,
-				webview_height_ratio: size,
-				messenger_extensions: true,
-				webview_share_button: share
-			}
-		},
-		url: (label, url, size = SIZE.TALL, share = HIDE) => {
-			return Object.assign(
-				models.buttons.menu(label, url, size),
-				{
-					webview_share_button: share
-				}
-			);
-		},
-		postback: (label, payload) => {
-			return {
-				title: label,
-				type: BUTTON.POSTBACK,
-				payload: payload
-			};
-		},
-		share: () => {
-			return {
-				type: BUTTON.SHARE
-			}
-		}
-	},
-
-	requests: {
-		action: (psid, action = ACTION.DONE) => {
-			return {
-				messaging_type: MESSAGE.UPDATE,
-				recipient: {
-					id: psid
-				},
-				sender_action: action
-			};
-		},
-		message: (psid, message, type = MESSAGE.RESPONSE) => {
-			return Object.assign({
-				messaging_type: type,
-				recipient: {
-					id: psid
-				},
-				message: message || {
-					text: "Hello. I wasn't told what to say to you."
-				}
-			});
-		},
-		subscription: (psid, message, tag = TAG.NON_PROMOTIONAL_SUBSCRIPTION) => {
-			return Object.assign(models.requests.message(psid, message, MESSAGE.SUBSCRIPTION), {
-				tag: tag
-			});
-		},
-		upload: (url, type = ATTACHMENT.IMAGE) => {
-			return {
-				message: {
-					attachment: models.attachment(
-						models.payloads.attachment(url, true),
-						type
-					)
-				}
-			}
-		}
-	},
-
-	message: (text, attachment, quick_replies) => {
-		if (!text && !attachment)
-			console.error("ERROR: At least some text or an attachment must be provided.");
-		
-		let o = {};
-
-		if (text) {
-			Object.assign(o, {
-				text: text
-			});
-		}
-		if (attachment) {
-			Object.assign(o, {
-				attachment: attachment
-			});
-		}
-		if (quick_replies) {
-			Object.assign(o, {
-				quick_replies: quick_replies
-			});
-		}
-
-		return o;
-	},
-
-	quick_reply: (label, postback, icon) => {
-		return Object.assign({
-			content_type: QUICK_REPLY.TEXT,
-			title: label,
-			payload: postback || label,
-		}, icon ? {
-			image_url: icon
-		} : {});
-	},
-
-	attachment: (payload, type = ATTACHMENT.IMAGE) => {
-		return {
-			type: type,
-			payload: payload
-		}
-	},
-
-	template: payload => models.attachment(payload, ATTACHMENT.TEMPLATE),
-
-	payloads: {
-		attachment: (url, is_asset = false) => {
-			return {
-				url: url,
-				is_reusable: is_asset
-			}
-		},
-		template: (elements, sharable = true, type = TEMPLATE.GENERIC) => {
-			return {
-				template_type: type,
-				sharable: sharable,
-				elements: ARRAY(elements)
-			};
-		},
-		generic: (elements, sharable) => models.payloads.template(elements, sharable),
-		list: (elements, button, size = SIZE.LARGE, sharable = false) => {
-			if (elements.length < 2 || elements.length > 4)
-				return console.error("ERROR: Lists can only have 2 - 4 items.");
-			
-			return Object.assign(
-				models.payloads.template(elements, sharable, TEMPLATE.LIST),
-				{
-					top_element_style: size,
-					buttons: ARRAY(button)
-				}
-			);
-		},
-		media: (element, sharable) => models.payloads.template(ARRAY(element), sharable, TEMPLATE.MEDIA),
-		buttons: (text, buttons) => {
-			if (buttons.length > 3)
-				return console.error("ERROR: Nae mer than three buttons!");
-			return {
-				template_type: TEMPLATE.BUTTON,
-				text: text,
-				buttons: buttons
-			};
-		}
-	},
-	
-	elements: {
-		element: (title, subtitle, image_url, click, buttons) => {
-			let o = {
-				title: title,
-				subtitle: subtitle,
-			};
-			if (image_url) {
-				Object.assign(o, {
-					image_url: image_url
-				});
-			}
-			if (click) {
-				Object.assign(o, {
-					default_action: click
-				});
-			}
-			if (buttons) {
-				Object.assign(o, {
-					buttons: buttons
-				});
-			}
-			return o;
-		},
-		generic: (title, subtitle, image, click, buttons) => {
-			if (buttons && buttons.length > 3)
-				return console.error("ERROR: Can only have at most 3 buttons.");
-			return models.elements.element(title, subtitle, image, click, buttons);
-		},
-		list_item: (title, subtitle, image, click, button) => {
-			return models.elements.element(title, subtitle, image, click, button ? ARRAY(button) : undefined);
-		},
-		media: (attachment_id, button, type = ATTACHMENT.VIDEO) => {
-			let o = {
-				media_type: type,
-				attachment_id: attachment_id
-			};
-			if (button) {
-				Object.assign(o, {
-					buttons: ARRAY(button)
-				});
-			}
-			return o;
-		}
-	},
-
-
-};
-
-
-/*
-
-	Collection of API endpoints
-
-*/
-const api = {
-	_: (uri, params, data, success, failure) => {
-		request({
-			uri: uri,
-			qs: params || {},
-			method: data ? "POST" : "GET",
-			json: data
-		}, (err, res, body) => {
-			if (!err && res.statusCode === OK)
-				success && success(res, body);
-			else if (failure)
-				failure(res, body);
-			else
-				console.error("API ERROR:", res.statusCode, res.statusMessage, body.error, params);
-		});
-	},
-	// TODO: implement Places API
-	places: (search_text, fields = ["photos"]) => {
-		// api._(
-		// 	PLACES_API,
-		// 	{
-		// 		key: PLACES_KEY,
-		// 		input: search_text,
-		// 		inputtype: "textquery",
-		// 		fields: fields.join(",")
-		// 	},
-		// );
-	},
-	booking: (end_point, params, success) => {
-		api._(
-			BOOKING_API + end_point,
-			params,
-			null,
-			(res, body) => success(res, JSON.parse(body))
-		);
-	},
-	autocomplete: (text, success) => {
-		api.booking("autocomplete", {
-			text: text,
-			language: "en",
-			extras: "forecast"
-		}, success);
-	},
-	messenger: (end_point, params, data) => {
-		api._(
-			MESSENGER_API + end_point,
-			Object.assign({
-				access_token: PAGE_ACCESS_TOKEN
-			}, params),
-			data
-		);
-	},
-	// TODO: batch messaging.
-	messages: (message, params = {}) => api.messenger("messages", params, message),
-	profile: (profile, params = {}) => api.messenger("messenger_profile", params, profile),
-	upload: (attachment, params = {}) => api.messenger("message_attachments", params, attachment)
-};
-
-
-/*
-
-	Collection of send functions: api + models
-
-*/
-const send = {
-	read_receipt: psid => {
-		api.messages(models.requests.action(psid, ACTION.MARK_SEEN));
-	},
-	typing_on: psid => {
-		api.messages(models.requests.action(psid, ACTION.TYPING));
-	},
-	typing_off: psid => {
-		api.messages(models.requests.action(psid, ACTION.DONE));
-	},
-	message: (psid, message, type) => {
-		api.messages(models.requests.message(psid, message, type));
-	},
-	text: (psid, text) => {
-		send.message(psid, models.message(text));
-	},
-	quick_reply: (psid, text, quick_replies) => {
-		console.log("SENDING QUICK REPLY:", psid, text);
-		console.dir(
-			models.requests.message(psid, models.message(text, null, quick_replies))
-		);
-		send.message(psid, models.message(text, null, quick_replies));
-	},
-	attachment: (psid, attachment, text) => {
-		console.log("SENDING ATTACHMENT:", psid, attachment.type, text);
-		send.message(psid, models.message(text, attachment));
-	},
-	generic: (psid, elements, sharable = false, type = MESSAGE.RESPONSE) => {
-		send.message(
-			psid,
-			models.message(
-				null,
-				models.template(models.payloads.generic(
-					elements,
-					sharable
-				))
-			),
-			type
-		);
-	},
-	list: (psid, items, button = null, size = SIZE.LARGE, sharable = false, type = MESSAGE.RESPONSE) => {
-		send.message(
-			psid,
-			models.message(
-				null,
-				models.template(models.payloads.list(
-					items,
-					button,
-					size,
-					sharable
-				))
-			),
-			type
-		);
-	},
-	buttons: (psid, text, buttons, type = MESSAGE.RESPONSE) => {
-		send.message(
-			psid,
-			models.message(
-				null,
-				models.template(models.payloads.buttons(
-					text,
-					buttons
-				))
-			),
-			type
-		);
-	},
-	yes_no: (psid, text) => send.buttons(psid, text, [
-		models.buttons.postback("Yep", POSTBACKS.YES),
-		models.buttons.postback("Nope", POSTBACKS.NO)
-	])
-};
-
-// We should create a Proxy for states... which listeners are present is variable.
-let _started = false;
-const state = {
-	default: {
-		[POSTBACKS.GET_STARTED]: psid => {
-			// TODO: Batch messages...
-			send.typing_on(psid);
-			
-			if (!_started) {
-				_started = true;
-				send.generic(psid, models.elements.generic(
-					SCRIPTS.WELCOME_TITLE,
-					"Let's get started!" // What about this?
-				)); // we need like a .then something.....
-			}
-			setTimeout(() => {
-				send.text(psid, SCRIPTS.WHERE_ARE_YOU_GOING);
-			}, 1500);
-
-			return state.city_search;
-		},
-		message: (psid, message) => state.default[POSTBACKS.GET_STARTED](psid)
-	},
-	city_search: {
-		_id: -1,
-		_name: "",
-		_region: "",
-		_country: "",
-		_image: "",
-		_url: "",
-		[POSTBACKS.YES]: psid => {
-			setTimeout(() => {
-				send.text(psid, SCRIPTS.CITY_SUCCESS);
-				send.typing_on(psid);
-				setTimeout(() => {
-					send.text(psid, SCRIPTS.WHEN_ARE_YOU_GOING);
-					setTimeout(() => {
-						send.text(psid, SCRIPTS.DATE_HINT);
-					}, 1500);
-				}, 1000);
-			}, 1000);
-			return state.travel_date;
-		},
-		[POSTBACKS.NO]: psid => {
-			send.text(psid, SCRIPTS.CITY_RETRY);
-			return state.city_search;
-		},
-		message: (psid, message) => {
-			send.typing_on(psid);
-			send.text(psid, SCRIPTS.CITY_SEARCHING);
-
-			api.autocomplete(message.text, (res, data) => {
-				let result = data.result[0];
-
-				if (!result || !result.forecast) {
-					send.text(psid, `No cities with hotels found for "${message.text}". Try again :)`);
-					return state.city_search;
-				}
-				
-				state.city_search._id = result.id;
-				state.city_search._name = result.city_name;
-				state.city_search._region = result.region;
-				state.city_search._country = result.country_name;
-				state.city_search._image = `${DOMAIN}/assets/images/${result.city_name.toLowerCase().replace(/\s/gi, '_')}.jpg`;
-				state.city_search._url = `https://duckduckgo.com/?q=${result.city_name}%2C+${result.region}%2C+${result.country_name}&t=h_&ia=weather`;
-
-				send.generic(psid, models.elements.generic(
-					result.label,
-					`Low: ${result.forecast.min_temp_c}ºC - High: ${result.forecast.max_temp_c}ºC ${WEATHER[result.forecast.icon]}`,
-					state.city_search._image
-				));
-				setTimeout(() => send.yes_no(psid, "Is this the right place?"), 1000);
-			});
-
-			return state.city_search;
-		}
-	},
-	travel_date: {
-		_checkin: Date.now(),
-		message: (psid, message) => {
-			let datetime = message.nlp.entities.datetime && message.nlp.entities.datetime[0];
-			if (datetime) {
-				state.travel_date._checkin = (new Date(SANITIZE(datetime.value)));
-				send.text(psid, SCRIPTS.DATE_SUCCESS);
-
-				setTimeout(() => {
-					send.text(psid, SCRIPTS.HOW_MANY_NIGHTS);
-				}, 1000);
-
-				return state.duration;
-			}
-
-			send.text(psid, SCRIPTS.DATE_RETRY);
-			return state.travel_dates;
-		}
-	},
-	duration: {
-		_arrive: null,
-		_depart: null,
-		_duration: 0,
-		[POSTBACKS.YES]: psid => {
-			send.text(psid, SCRIPTS.NIGHTS_SUCCESS);
-			setTimeout(() => send.text(psid, SCRIPTS.NUMBER_OF_GUESTS), 1500);
-			return state.guests;
-		},
-		[POSTBACKS.NO] : psid => {
-			send.text(psid, SCRIPTS.NIGHTS_DENIED);
-			setTimeout(() => send.text(psid, SCRIPTS.WHEN_ARE_YOU_GOING), 1000);
-			return state.travel_date;
-		},
-		message: (psid, message) => {
-			let datetime = message.nlp.entities.datetime && message.nlp.entities.datetime[0];
-
-			if (datetime) {
-				let checkin = state.travel_date._checkin;
-				let checkout = (new Date(SANITIZE(datetime.value)));
-
-				console.log("========================================");
-				console.log(checkin, checkout);
-				console.log("========================================");
-
-				state.duration._arrive = checkin;
-				state.duration._depart = checkout;
-				state.duration._duration = NIGHTS(checkout.getTime() - checkin.getTime());
-
-				send.text(psid, `Arrive: ${DATE(checkin)}`);
-				setTimeout(() => send.text(psid, `Depart: ${DATE(checkout)}`), 1000);
-				setTimeout(() => send.yes_no(psid, SCRIPTS.NIGHTS_CONFIRM), 2000);
-
-				return state.duration;
-			}
-
-			send.text(psid, SCRIPTS.NIGHTS_RETRY);
-			return state.duration;
-
-			// This does DURATION. We'll leave -- 
-			/*let nights = 0;
-			let duration = message.nlp.entities.duration && message.nlp.entities.duration[0];
-			
-			if (duration) {
-				if (duration.unit === 'week') {
-					nights = duration.value * 7;
-				} else if (duration.unit === 'day') {
-					nights = duration.value;
-				}
-			} else {
-				let pivot = message.text.indexOf(' night');
-				if (pivot > -1)
-					message.text = message.text.substring(0, pivot);
-				
-				nights = parseInt(message.text);
-				console.log("NIGHTS:", nights);
-
-				if (isNaN(nights)) {
-					send.text(psid, SCRIPTS.NIGHTS_RETRY);
-					return state.duration;
-				}
-			}*/
-		}
-	},
-	guests: {
-		_guests: 1,
-		message: (psid, message) => {
-			// USE NLP a wee bit to get number of guests.
-			// Just assume it is a plan number for now
-			let guests = parseInt(message.text);
-			if (isNaN(guests)) {
-				send.text(psid, SCRIPTS.GUESTS_RETRY);
-				return state.guests;
-			}
-			send.text(psid, SCRIPTS.GUESTS_SUCCESS);
-			send.typing_on(psid);
-			setTimeout(() => {
-				send.list(
-					psid,
-					[
-						models.elements.list_item(
-							state.city_search._name,
-							`${state.city_search._region}, ${state.city_search._country}`,
-							state.city_search._image,
-							models.buttons.click(DOMAIN + "/group"),
-							models.buttons.url("View City", state.city_search._url, SIZE.FULL, HIDE)
-						),
-						models.elements.list_item(
-							`${DATE(state.duration._arrive)} to ${DATE(state.duration._depart)}`,
-							`${state.duration._duration} night stay 🌛️`
-						),
-						models.elements.list_item(
-							`${guests} guest${guests > 1 ? 's' : ''}`,
-							`Share this module with your friends to start planning your trip together! 💃️`
-						),
-					],
-					models.buttons.url("Start Planning", DOMAIN + "/group", SIZE.FULL, HIDE),
-					SIZE.LARGE,
-					true
-				);
-			}, 2000);
-
-			return state.done;
-		}
-	},
-	done: {
-		message: (psid, message) => {
-			send.text(psid, "ECHO: " + message.text);
-			return state.done; // loop
-		}
-	}
-};
-
-const receive = {
-	_state: state.default,
-	message: event => {
-		let psid = event.sender.id;
-		let message = event.message;
-
-		console.log("========================================");
-		console.log("RECEIVED MESSAGE:", psid);
-		console.dir(message);
-		console.log("========================================");
-
-		send.read_receipt(psid);
-		setTimeout(() => receive._state = receive._state.message(psid, message), 1000);
-	},
-	postback: event => {
-		let psid = event.sender.id;
-		let payload = event.postback.payload;
-
-		console.log("========================================");
-		console.log("RECEIVED POSTBACK:", psid, payload);
-		console.log("========================================");
-
-		send.read_receipt(psid);
-		setTimeout(() => {
-			receive._state = receive._state[payload] ? receive._state[payload](psid) : state.default[payload](psid);
-		}, 1000);
-	}
-};
-
+const URL = path => config.DOMAIN + path;
 
 /*
 
 	Hook everything together!!
 
 */
-if (DEV_MODE) {
+if (config.DEV_MODE) {
 	app.use('/css', express.static(__dirname + '/css'));
 	app.use('/assets', express.static(__dirname + '/assets'));
 }
@@ -851,10 +55,31 @@ app.get('/help', (req, res) => {
 });
 
 app.get('/group', (req, res) => {
-	// BOOM! Here, we need to setup out ChatExtensions SDK (follow example)
-	// We're going to need websockets.
-	// Time to maybe start some refarctoring as well...
-	res.render("group");
+	// This only works once group is doing something...
+	let data = group.data();
+
+	if (data.ready) {
+		// Accommodations
+		data.accommodations = [config.SEARCH.HOTELS, config.SEARCH.APARTMENTS, config.SEARCH.HOSTELS];
+		// Rooms
+		data.rooms = [config.SEARCH.SINGLE, config.SEARCH.DOUBLE, config.SEARCH.MULTIPLE];
+		// Facilities
+		data.facilities = [config.SEARCH.BREAKFAST, config.SEARCH.TEA_COFFEE, config.SEARCH.BATHROOM, config.SEARCH.WIFI, config.SEARCH.POOL, config.SEARCH.PARKING];
+		// Districts
+		api.districts(data.city.id, (res, body) => {
+			let results = data.result;
+			data.city.districts = results.map(result => {
+				return {
+					label: result.name,
+					id: result.district_id
+				}
+			});
+
+			res.render("group");
+		});
+	} else {
+		res.render("help");
+	}
 });
 
 // We should make a wee API for testing these messages.
@@ -865,17 +90,17 @@ app.route("/webhook")
 		let challenge = req.query['hub.challenge'];
 
 		if (mode && token) {
-			if (mode === 'subscribe' && token === APP_SECRET) {
-				console.log("VERIFIED: Webhook", APP_SECRET);
-				res.status(OK).send(challenge);
+			if (mode === 'subscribe' && token === config.APP_SECRET) {
+				console.log("VERIFIED: Webhook", config.APP_SECRET);
+				res.status(config.OK).send(challenge);
 			}
 		} else {
 			console.error("FAILED. Webhook did not validate.");
-			res.status(BAD).send("Bad Request.");
+			res.status(config.BAD).send("Bad Request.");
 		}
 	})
 	.post((req, res) => {
-		res.sendStatus(OK);
+		res.sendStatus(config.OK);
 
 		const data = req.body;
 		
@@ -899,18 +124,19 @@ app.route("/webhook")
 		}
 	});
 
-if (DEV_MODE) {
+if (config.DEV_MODE) {
 	api.profile(models.profile.config(
-		SCRIPTS.WELCOME_TITLE + "\n\n" + SCRIPTS.WELCOME_MESSAGE,
+		config.SCRIPTS.WELCOME_TITLE + "\n\n" + config.SCRIPTS.WELCOME_MESSAGE,
 		models.profile.menu([
-			models.buttons.postback("Get Started", POSTBACKS.GET_STARTED),
+			models.buttons.postback("Get Started", config.POSTBACKS.GET_STARTED),
 			models.buttons.menu("My Trips", URL("/trips")),
 			models.buttons.menu("Help", URL("/help"))
 		])
 	));
 }
 
-app.listen(PORT, () => {
+app.listen(config.PORT, () => {
 	console.log("b00k1ng b0t - ONLINE.");
-	console.log(PAGE_ACCESS_TOKEN);
+	console.log("APP ID:", config.APP_ID);
+	console.log("PAGE TOKEN:", config.PAGE_ACCESS_TOKEN);
 });
