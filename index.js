@@ -110,18 +110,19 @@ const SCRIPTS = {
 	CITY_SUCCESS: "Awesome 😎️ We're good at this!",
 	CITY_RETRY: "Let's try again. ",
 	
-	WHEN_ARE_YOU_GOING: "So, when is your check-in date?",
+	WHEN_ARE_YOU_GOING: "So, what is your date of arrival?",
 	DATE_HINT: "(eg. October 31st)",
 	DATE_SUCCESS: "Cool.",
 	DATE_RETRY: "Sorry, didn't quite catch that... 😕️",
 
-	HOW_MANY_NIGHTS: "How long is your visit? ",
+	HOW_MANY_NIGHTS: "and your leaving date?",
 	NIGHTS_SUCCESS: "Almost there! 🏁️",
-	NIGHTS_RETRY: "Oops. Be sure to put a number!",
+	NIGHTS_RETRY: "Oops. Give it another go.",
 	NIGHTS_CONFIRM: "Is this correct?? ",
-	NIGHTS_DENIED: "How embarassing. I'll try again.",
 
 	NUMBER_OF_GUESTS: "How many people are you travelling with? ✈️",
+	GUESTS_SUCCESS: "Hooray! 🎉️ Creating your trip...",
+	GUESTS_RETRY: "We're so close! Just pass us a whole number between 1 and 100 :)"
 };
 
 const WEATHER = {
@@ -175,7 +176,7 @@ const MONTHS = [
 // Makes an array if item isn't one.
 const ARRAY = item => [].concat(item);
 const URL = path => DOMAIN + path;
-const DATE = date => `${DAYS[date.getDay()]} ${date.getDate()} ${MONTHS[date.getMonth()]}`;
+const DATE = date => `${DAYS[date.getDay()]} ${date.getDate() + 1} ${MONTHS[date.getMonth()]}`;
 
 /*
 
@@ -602,7 +603,8 @@ const state = {
 		}
 	},
 	city_search: {
-		_city_id: -1,
+		_id: -1,
+		_name: "",
 		[POSTBACKS.YES]: psid => {
 			setTimeout(() => {
 				send.text(psid, SCRIPTS.CITY_SUCCESS);
@@ -626,6 +628,11 @@ const state = {
 
 			api.autocomplete(message.text, (res, data) => {
 				let result = data.result[0];
+				
+				state.city_search._id = result.id;
+				state.city_search._name = result.city_name;
+				state.city_search._region = result.region;
+				state.city_search._country = result.country_name;
 
 				send.generic(psid, models.elements.generic(
 					result.label,
@@ -644,7 +651,7 @@ const state = {
 		message: (psid, message) => {
 			let datetime = message.nlp.entities.datetime && message.nlp.entities.datetime[0];
 			if (datetime) {
-				state.travel_date._checkin = (new Date(datetime.value))
+				state.travel_date._checkin = (new Date(datetime.value));
 				send.text(psid, SCRIPTS.DATE_SUCCESS);
 
 				setTimeout(() => {
@@ -659,7 +666,6 @@ const state = {
 		}
 	},
 	duration: {
-		_checkout: Date.now(),
 		[POSTBACKS.YES]: psid => {
 			send.text(psid, SCRIPTS.NIGHTS_SUCCESS);
 			setTimeout(() => send.text(psid, SCRIPTS.NUMBER_OF_GUESTS), 1500);
@@ -671,10 +677,27 @@ const state = {
 			return state.duration;
 		},
 		message: (psid, message) => {
-			message.text = message.text.trim();
-			console.dir(message.nlp.entities);
+			let datetime = message.nlp.entities.datetime && message.nlp.entities.datetime[0];
 
-			let nights = 0;
+			if (datetime) {
+				let checkin = state.travel_date._checkin;
+				let checkout = (new Date(datetime.value));
+
+				console.log("========================================");
+				console.log(checkin, checkout);
+				console.log("========================================");
+
+				send.text(psid, `Arrive: *${DATE(checkin)}* - Depart: *${DATE(checkout)}*`);
+				setTimeout(() => send.yes_no(psid, SCRIPTS.NIGHTS_CONFIRM), 1000);
+
+				return state.duration;
+			}
+
+			send.text(psid, SCRIPTS.NIGHTS_RETRY);
+			return state.duration;
+
+			// This does DURATION. We'll leave -- 
+			/*let nights = 0;
 			let duration = message.nlp.entities.duration && message.nlp.entities.duration[0];
 			
 			if (duration) {
@@ -695,33 +718,37 @@ const state = {
 					send.text(psid, SCRIPTS.NIGHTS_RETRY);
 					return state.duration;
 				}
-			}
-
-			/*
-			
-				Do some light debugging here and then move-on....
-
-			*/
-
-			let checkin = state.travel_date._checkin;
-			let checkout = state.duration._checkout = new Date(checkin.getTime() + (nights * 1000 * 60 * 60 * 24))
-
-			console.log("========================================");
-			console.log(checkin, checkout);
-			console.log("========================================");
-
-			send.text(psid, `Check-in: ${DATE(checkin)}`);
-			setTimeout(() => {
-				send.text(`Check-out: ${DATE(checkout)}`);
-				setTimeout(() => send.yes_no(psid, SCRIPTS.NIGHTS_CONFIRM), 1500);
-			}, 750);
-
-			//send.text(psid, SCRIPTS.NIGHTS_SUCCESS);
-			return state.duration;
+			}*/
 		},
 		guests: {
+			_guests: 1,
 			message: (psid, message) => {
 				// USE NLP a wee bit to get number of guests.
+				// Just assume it is a plan number for now
+				let guests = parseInt(message.text);
+				if (isNaN(guests)) {
+					send.text(psid, SCRIPTS.GUESTS_RETRY);
+					return state.guests;
+				}
+				send.text(psid, SCRIPTS.GUESTS_SUCCESS);
+				send.typing_on(psid);
+				setTimeout(() => {
+					send.list(psid, [
+						models.elements.list_item(
+							state.city_search._name,
+							`${state.city_search._region}, ${state.city_search._country}`,
+							models.buttons.click(DOMAIN + "/group", )
+						)
+					], );
+				}, 1000);
+
+				return state.done;
+			}
+		},
+		done: {
+			message: (psid, message) => {
+				send.text(psid, "ECHO: " + message.text);
+				return state.done; // loop
 			}
 		}
 	}
@@ -786,9 +813,11 @@ app.get('/help', (req, res) => {
 	res.render("help");
 });
 
-// TODO: Group chat.
 app.get('/group', (req, res) => {
-	res.send("Group chat extension.");
+	// BOOM! Here, we need to setup out ChatExtensions SDK (follow example)
+	// We're going to need websockets.
+	// Time to maybe start some refarctoring as well...
+	res.render("group");
 });
 
 // We should make a wee API for testing these messages.
