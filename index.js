@@ -504,6 +504,8 @@ const state = {
 		},
 		message: (psid, message) => {
 			console.log("API: Search Booking.com autocomplete endpoint. This is next.");
+			console.dir(message);
+
 			send.typing_on(psid);
 			send.text(psid, "🔎️ Searching... bee-boo-bop");
 			setTimeout(() => {
