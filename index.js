@@ -646,6 +646,10 @@ const state = {
 			console.dir(message);
 
 			if (message.nlp.entities.datetime) {
+				console.log("========================================");
+				console.log(message.nlp.entities.datetime);
+				console.log("========================================");
+
 				state.travel_date._checkin = (new Date(message.nlp.entities.datetime.value))
 				send.text(psid, SCRIPTS.DATE_SUCCESS);
 
@@ -706,7 +710,7 @@ const state = {
 			*/
 
 			let checkin = state.travel_date._checkin;
-			let checkout = state.duration._checkout = new Date(checkin.getMilliseconds() + (nights * 1000 * 60 * 60 * 24))
+			let checkout = state.duration._checkout = new Date(checkin.getTime() + (nights * 1000 * 60 * 60 * 24))
 
 			console.log("========================================");
 			console.log(checkin, checkout);
