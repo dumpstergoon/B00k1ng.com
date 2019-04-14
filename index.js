@@ -374,10 +374,12 @@ const api = {
 			method: "POST",
 			json: data || {}
 		}, (err, res, body) => {
-			if (!err && res.statusCode === OK)
-				success ? success(res, body) : console.log("API SUCCESS:", body);
+			if (!err && res.statusCode === OK && success)
+				success(res, body);
+			else if (failure)
+				failure(res, body);
 			else
-				failure ? failure(res, body) : console.error("API ERROR:", res.statusCode, res.statusMessage, body.error, params);
+				console.error("API ERROR:", res.statusCode, res.statusMessage, body.error, params);
 		});
 	},
 	messenger: (end_point, params, data) => {
@@ -403,22 +405,18 @@ const api = {
 */
 const send = {
 	read_receipt: psid => {
-		console.log("MESSAGE READ.", psid);
 		api.messages(models.requests.action(psid, ACTION.MARK_SEEN));
 	},
 	typing_on: psid => {
-		console.log("TYPING...", psid);
 		api.messages(models.requests.action(psid, ACTION.TYPING));
 	},
 	typing_off: psid => {
-		console.log("DONE TYPING.", psid);
 		api.messages(models.requests.action(psid, ACTION.DONE));
 	},
 	message: (psid, message, type) => {
 		api.messages(models.requests.message(psid, message, type));
 	},
 	text: (psid, text) => {
-		console.log("SENDING TEXT:", psid, text);
 		send.message(psid, models.message(text));
 	},
 	quick_reply: (psid, text, quick_replies) => {
@@ -574,8 +572,6 @@ app.route("/webhook")
 		let token = req.query['hub.verify_token'];
 		let challenge = req.query['hub.challenge'];
 
-		console.log("VERIFY:", mode, token, challenge);
-
 		if (mode && token) {
 			if (mode === 'subscribe' && token === APP_SECRET) {
 				console.log("VERIFIED: Webhook", APP_SECRET);
@@ -592,15 +588,14 @@ app.route("/webhook")
 		const data = req.body;
 		
 		if (data.object === "page") {
-			console.log("MESSAGE RECEIVED:", JSON.stringify(data));
+
+			//console.log("MESSAGE RECEIVED:", JSON.stringify(data));
 
 			data.entry.forEach(entry => {
 				if (!entry.messaging)
 					return;
 				
 				entry.messaging.forEach(event => {
-					console.log({event});
-
 					if (event.message)
 						receive.message(event);
 					else if (event.postback)
