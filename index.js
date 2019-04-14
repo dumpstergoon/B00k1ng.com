@@ -466,8 +466,9 @@ const state = {
 				SCRIPTS.WELCOME_TITLE,
 				SCRIPTS.WELCOME_MESSAGE
 			));
-			send.text(psid, SCRIPTS.WHERE_ARE_YOU_GOING);
-			send.typing_off(psid);
+			setTimeout(() => {
+				send.text(psid, SCRIPTS.WHERE_ARE_YOU_GOING);
+			}, 1000);
 			return state.city_search;
 		},
 		message: (psid, message) => {
@@ -488,7 +489,7 @@ const state = {
 		},
 		message: (psid, message) => {
 			console.log("API: Search Booking.com autocomplete endpoint. This is next.");
-			send.text(psid, "Searching... bee-boo-bop");
+			send.text(psid, "🔎️ Searching... bee-boo-bop");
 			send.typing_on(psid);
 			setTimeout(() => {
 				send.generic(psid, models.elements.generic(
@@ -609,7 +610,7 @@ app.route("/webhook")
 
 if (!DEV_MODE) {
 	api.profile(models.profile.config(
-		"Howdy! I'm B00k1ng B0t and I'll help you book through Booking.com for your next trip. Let's get started!",
+		SCRIPTS.WELCOME_MESSAGE,
 		models.profile.menu([
 			models.buttons.postback("Get Started", POSTBACKS.GET_STARTED),
 			models.buttons.menu("My Trips", URL("/trips")),
