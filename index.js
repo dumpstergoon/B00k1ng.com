@@ -118,8 +118,10 @@ const SCRIPTS = {
 	HOW_MANY_NIGHTS: "How long is your visit? ",
 	NIGHTS_SUCCESS: "Almost there!",
 	NIGHTS_RETRY: "Oops. Be sure to put a number!",
+	NIGHTS_CONFIRM: "Is this correct?? ",
+	NIGHTS_DENIED: "How embarassing. I'll try again.",
 
-	NUMBER_OF_GUESTS: "How many is your group?",
+	NUMBER_OF_GUESTS: "How many people are you travelling with? ✈️",
 };
 
 const WEATHER = {
@@ -144,10 +146,36 @@ const WEATHER = {
 	sleetthunder: "🌨️⛈️"
 };
 
+const DAYS = [
+	"Sunday",
+	"Monday",
+	"Tuesday",
+	"Wednesday",
+	"Thursday",
+	"Friday",
+	"Saturday"
+];
+
+const MONTHS = [
+	"January",
+	"February",
+	"March",
+	"April",
+	"May",
+	"June",
+	"July",
+	"August",
+	"September",
+	"October",
+	"November",
+	"December"
+];
+
 
 // Makes an array if item isn't one.
 const ARRAY = item => [].concat(item);
 const URL = path => DOMAIN + path;
+const DATE = date => `${DAYS[date.getDay()]} ${date.getDate()} ${MONTHS[date.getMonth()]}`;
 
 /*
 
@@ -540,7 +568,11 @@ const send = {
 			),
 			type
 		);
-	}
+	},
+	yes_no: (psid, text) => send.buttons(psid, text, [
+		models.buttons.postback("Yep", POSTBACKS.YES),
+		models.buttons.postback("Nope", POSTBACKS.NO)
+	])
 };
 
 // We should create a Proxy for states... which listeners are present is variable.
@@ -570,6 +602,7 @@ const state = {
 		}
 	},
 	city_search: {
+		_city_id: -1,
 		[POSTBACKS.YES]: psid => {
 			setTimeout(() => {
 				send.text(psid, SCRIPTS.CITY_SUCCESS);
@@ -600,23 +633,20 @@ const state = {
 					// TODO: Need to fetch a photo from somewhere...
 					`https://b00k1ng.com/assets/images/${result.city_name.toLowerCase()}.jpg`
 				));
-				setTimeout(() => {
-					send.buttons(psid, "Is this the right place?", [
-						models.buttons.postback("Yep", POSTBACKS.YES),
-						models.buttons.postback("Nope", POSTBACKS.NO)
-					]);
-				}, 1000);
+				setTimeout(() => send.yes_no(psid, "Is this the right place?"), 1000);
 			});
 
 			return state.city_search;
 		}
 	},
 	travel_date: {
+		_checkin: Date.now(),
 		message: (psid, message) => {
 			console.log("DEEP DIVE BRUH...");
 			console.dir(message);
 
 			if (message.nlp.entities.datetime) {
+				state.travel_date._checkin = (new Date(message.nlp.entities.datetime.value))
 				send.text(psid, SCRIPTS.DATE_SUCCESS);
 
 				setTimeout(() => {
@@ -631,7 +661,18 @@ const state = {
 		}
 	},
 	duration: {
+		_checkout: Date.now(),
+		[POSTBACKS.YES]: psid => {
+			send.text(psid, SCRIPTS.NIGHTS_SUCCESS);
+			return state.guests;
+		},
+		[POSTBACKS.NO] : psid => {
+			send.text(psid, SCRIPTS.NIGHTS_DENIED);
+			setTimeout(() => send.text(psid, SCRIPTS.HOW_MANY_NIGHTS), 1000);
+			return state.duration;
+		},
 		message: (psid, message) => {
+			message.text = message.text.trim();
 			console.dir(message.nlp.entities);
 
 			let nights = 0;
@@ -639,15 +680,17 @@ const state = {
 			
 			if (duration) {
 				if (duration.unit === 'week') {
-					console.log("WEEK");
 					nights = duration.value * 7;
-				} else if (duration.unit === 'day' || duration.unit === 'night') {
-					console.log("DAY/NIGHT");
+				} else if (duration.unit === 'day') {
 					nights = duration.value;
 				}
 			} else {
+				let pivot = message.text.indexOf(' night');
+				if (pivot > -1)
+					message.text = message.text.substring(0, pivot);
+				
 				nights = parseInt(message.text);
-				console.log(nights);
+				console.log("NIGHTS:", nights);
 
 				if (isNaN(nights)) {
 					send.text(psid, SCRIPTS.NIGHTS_RETRY);
@@ -655,8 +698,22 @@ const state = {
 				}
 			}
 
-			send.text(psid, `${nights} nights!`);
+			let checkin = state.duration._checkin;
+			let checkout = state.duration._checkout = new Date(checkin.getMilliseconds() + (nights * 1000 * 60 * 60 * 24))
+
+			send.text(psid, `Check-in: ${DATE(checkin)}`);
+			setTimeout(() => {
+				send.text(`Check-out: ${DATE(checkout)}`);
+				setTimeout(() => send.yes_no(psid, SCRIPTS.NIGHTS_CONFIRM), 1500);
+			}, 750);
+
+			//send.text(psid, SCRIPTS.NIGHTS_SUCCESS);
 			return state.duration;
+		},
+		guests: {
+			message: (psid, message) => {
+				// USE NLP a wee bit to get number of guests.
+			}
 		}
 	}
 };
