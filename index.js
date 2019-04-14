@@ -37,7 +37,7 @@ const APP_ID = 417588018987362;
 const APP_SECRET = "b00k1ng.b0t"
 const PAGE_ACCESS_TOKEN = require("./TOKEN.js");
 const HOME_URL = DOMAIN + "/group";
-const WHITELIST = [DOMAIN];
+const WHITELIST = [DOMAIN, "https://duckduckgo.com"];
 
 const PLACES_KEY = "AIzaSyAKzhe2wmODZQRENcpWXJ0qncxYOtFEG1k";
 
