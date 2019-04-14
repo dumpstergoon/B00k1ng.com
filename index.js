@@ -458,33 +458,41 @@ const send = {
 };
 
 // We should create a Proxy for states... which listeners are present is variable.
+let _started = false;
 const state = {
 	default: {
 		[POSTBACKS.GET_STARTED]: psid => {
 			// TODO: Batch messages...
-			send.generic(psid, models.elements.generic(
-				SCRIPTS.WELCOME_TITLE,
-				SCRIPTS.WELCOME_MESSAGE
-			));
+			send.typing_on(psid);
+			
+			if (!_started) {
+				_started = true;
+				send.generic(psid, models.elements.generic(
+					SCRIPTS.WELCOME_TITLE,
+					SCRIPTS.WELCOME_MESSAGE
+				)); // we need like a .then something.....
+			}
 			setTimeout(() => {
 				send.text(psid, SCRIPTS.WHERE_ARE_YOU_GOING);
-			}, 1000);
+			}, 1500);
+
 			return state.city_search;
 		},
 		message: (psid, message) => {
 			send.text(psid, "Calm down.");
-			send.typing_off(psid);
 			return state.default;
 		}
 	},
 	city_search: {
 		[POSTBACKS.YES]: psid => {
-			send.text(psid, "Phew. Glad I got that one right.");
+			send.typing_on(psid);
+			setTimeout(() => {
+				send.text(psid, "Phew. Glad I got that one right.");
+			}, 1000);
 			return state.default;
 		},
 		[POSTBACKS.NO]: psid => {
 			send.text(psid, "Nae bother. Gi'it another wee go.");
-			send.typing_off(psid);
 			return state.city_search;
 		},
 		message: (psid, message) => {
@@ -512,8 +520,6 @@ const receive = {
 		console.log("RECEIVED MESSAGE:", psid, message);
 
 		send.read_receipt(psid);
-		send.typing_on(psid);
-
 		setTimeout(() => receive._state = receive._state.message(psid, message), 1000);
 	},
 	postback: event => {
@@ -523,8 +529,6 @@ const receive = {
 		console.log("RECEIVED POSTBACK:", psid, payload);
 
 		send.read_receipt(psid);
-		send.typing_on(psid);
-		
 		setTimeout(() => receive._state = receive._state[payload](psid), 1000);
 	}
 };
@@ -608,16 +612,16 @@ app.route("/webhook")
 		}
 	});
 
-if (!DEV_MODE) {
+//if (!DEV_MODE) {
 	api.profile(models.profile.config(
-		SCRIPTS.WELCOME_MESSAGE,
+		SCRIPTS.WELCOME_TITLE + "\n\n" + SCRIPTS.WELCOME_MESSAGE,
 		models.profile.menu([
 			models.buttons.postback("Get Started", POSTBACKS.GET_STARTED),
 			models.buttons.menu("My Trips", URL("/trips")),
 			models.buttons.menu("Help", URL("/help"))
 		])
 	));
-}
+//}
 
 app.listen(PORT, () => {
 	console.log("b00k1ng b0t - ONLINE.");
