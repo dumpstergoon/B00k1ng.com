@@ -503,25 +503,28 @@ const state = {
 			return state.city_search;
 		},
 		message: (psid, message) => {
-			console.log("API: Search Booking.com autocomplete endpoint. This is next.");
-			console.dir(message);
-
-			send.typing_on(psid);
-			send.text(psid, "🔎️ Searching... bee-boo-bop");
-			setTimeout(() => {
-				send.generic(psid, models.elements.generic(
-					"City Name",
-					"Some tagline about the city.",
-					"http://www.libertasinternational.com/wp-content/uploads/2014/02/amsterdam3.jpg"
-				));
+			console.dir(message.entities);
+			let text = message.text.toUpperCase();
+			if (state[text])
+				return state[text](psid);
+			else {
+				send.typing_on(psid);
+				send.text(psid, "🔎️ Searching... bee-boo-bop");
 				setTimeout(() => {
-					send.quick_reply(psid, "Is this the right place?", [
-						models.quick_reply("Yep", POSTBACKS.YES),
-						models.quick_reply("Nope", POSTBACKS.NO)
-					]);
+					send.generic(psid, models.elements.generic(
+						"City Name",
+						"Some tagline about the city.",
+						"http://www.libertasinternational.com/wp-content/uploads/2014/02/amsterdam3.jpg"
+					));
+					setTimeout(() => {
+						send.quick_reply(psid, "Is this the right place?", [
+							models.quick_reply("Yep", POSTBACKS.YES),
+							models.quick_reply("Nope", POSTBACKS.NO)
+						]);
+					}, 1000);
 				}, 1000);
-			}, 1000);
-			return state.city_search;
+				return state.city_search;
+			}
 		}
 	},
 	travel_dates: {
@@ -540,7 +543,10 @@ const receive = {
 		let psid = event.sender.id;
 		let message = event.message;
 
-		console.log("RECEIVED MESSAGE:", psid, message);
+		console.log("========================================");
+		console.log("RECEIVED MESSAGE:", psid);
+		console.dir(message);
+		console.log("========================================");
 
 		send.read_receipt(psid);
 		setTimeout(() => receive._state = receive._state.message(psid, message), 1000);
@@ -549,7 +555,9 @@ const receive = {
 		let psid = event.sender.id;
 		let payload = event.postback.payload;
 
+		console.log("========================================");
 		console.log("RECEIVED POSTBACK:", psid, payload);
+		console.log("========================================");
 
 		send.read_receipt(psid);
 		setTimeout(() => receive._state = receive._state[payload](psid), 1000);
