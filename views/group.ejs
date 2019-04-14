@@ -15,15 +15,14 @@
 			<ul>
 			<% accommodations.forEach(type => { %>
 				<li>
-					<label><%= type.label %></label>
 					<input type="checkbox" name="accommodation" value="<%= type.id %>" />
+					<label><%= type.label %></label>
 				</li>
 			<% }); %>
 			</ul>
 		</form>
 		
 		<footer>
-			<button>Next</button>
 			<button>Next</button>
 		</footer>
 	</section>

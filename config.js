@@ -19,35 +19,35 @@ exports.PLACES_KEY = "AIzaSyAKzhe2wmODZQRENcpWXJ0qncxYOtFEG1k";
 
 exports.SEARCH = {
 	HOTELS: {
-		label: "hotels",
+		label: "Hotels",
 		id: 204
 	},
 	APARTMENTS: {
-		label: "apartments",
+		label: "Apartments",
 		id: 201
 	},
 	HOSTELS: {
-		label: "hostels",
+		label: "Hostels",
 		id: 203
 	},
 	SINGLE: {
-		label: "single",
+		label: "Single",
 		id: 10
 	},
 	DOUBLE: {
-		label: "double",
+		label: "Double",
 		id: 9
 	},
 	TRIPLE: {
-		label: "triple",
+		label: "Triple",
 		id: 7
 	},
 	QUADRUPLE: {
-		label: "quadruple",
+		label: "Quadruple",
 		id: 4
 	},
 	MULTIPLE: {
-		label: "multiple",
+		label: "Multiple",
 		id: -1
 	},
 
