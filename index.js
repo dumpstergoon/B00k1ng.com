@@ -637,8 +637,10 @@ const state = {
 			let duration = message.nlp.entities.duration;
 			if (duration) {
 				console.dir(duration);
-				if (duration.unit === 'week')
+				if (duration.unit === 'week') {
+					console.log(duration.value, duration.unit + 's');
 					send.text(psid, `${duration.value * 7} nights!`);
+				}
 			} else {
 				let nights = parseInt(message.text);
 				if (isNaN(nights))
