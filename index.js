@@ -633,12 +633,19 @@ const state = {
 	},
 	duration: {
 		message: (psid, message) => {
-			console.log("DURATION.");
-			console.dir(message);
 			console.dir(message.nlp.entities);
-
-			send.text(psid, message.text);
-			send.text(psid, JSON.stringify(message.nlp.entities));
+			let duration = message.nlp.entities.duration;
+			if (duration) {
+				console.dir(duration);
+				if (duration.unit === 'week')
+					send.text(psid, `${duration.value * 7} nights!`);
+			} else {
+				let nights = parseInt(message.text);
+				if (isNaN(nights))
+					send.text(psid, SCRIPTS.NIGHTS_RETRY);
+				else
+					send.text(psid, `${nights} nights!`);
+			}
 
 			return state.duration;
 		}
