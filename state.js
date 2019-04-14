@@ -163,7 +163,7 @@ const state = {
 				name: state.city_search._name,
 				region: state.city_search._region,
 				country: state.city_search._country,
-				images: state.city_search._image,
+				image: state.city_search._image,
 				url: state.city_search._url,
 			}
 
