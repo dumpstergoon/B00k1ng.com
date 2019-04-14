@@ -29,7 +29,7 @@ const OK = 200;
 const BAD = 403;
 
 const MESSENGER_API = "https://graph.facebook.com/v2.6/me/";
-const BOOKING_API = "https://distribution-xml.booking.com/2.0/json/";
+const BOOKING_API = "https://hackaton_team_graham:B00ndock5!@distribution-xml.booking.com/2.0/json/";
 
 const APP_ID = 417588018987362;
 const APP_SECRET = "b00k1ng.b0t"
@@ -375,8 +375,8 @@ const api = {
 		request({
 			uri: uri,
 			qs: params || {},
-			method: "POST",
-			json: data || {}
+			method: data ? "POST" : "GET",
+			json: data
 		}, (err, res, body) => {
 			if (!err && res.statusCode === OK)
 				success && success(res, body);
@@ -385,6 +385,21 @@ const api = {
 			else
 				console.error("API ERROR:", res.statusCode, res.statusMessage, body.error, params);
 		});
+	},
+	booking: (end_point, params, success) => {
+		api._(
+			BOOKING_API + end_point,
+			params,
+			null,
+			success
+		);
+	},
+	autocomplete: (text, success) => {
+		api.booking("autocomplete", {
+			text: text,
+			language: "en",
+			extras: "forecast"
+		}, success);
 	},
 	messenger: (end_point, params, data) => {
 		api._(
@@ -516,21 +531,16 @@ const state = {
 			return state.city_search;
 		},
 		message: (psid, message) => {
-			let text = message.text.toUpperCase();
-			
-			// if (state[text])
-			// 	return state[text](psid);
-			
-				send.typing_on(psid);
+			send.typing_on(psid);
 			send.text(psid, "🔎️ Searching... bee-boo-bop");
-			
-			// Do stuff with this in the search...
-			console.dir(message.nlp.entities);
 
-			setTimeout(() => {
+			api.autocomplete(message.text, (res, data) => {
+				let result = data.result[0];
+
 				send.generic(psid, models.elements.generic(
-					"City Name",
-					"Some tagline about the city.",
+					result.label,
+					`Low: ${result.min_temp_c}ºC - High: ${result.max_temp_c}ºC`,
+					// TODO: Need to fetch a photo from somewhere...
 					"http://www.libertasinternational.com/wp-content/uploads/2014/02/amsterdam3.jpg"
 				));
 				setTimeout(() => {
@@ -539,7 +549,7 @@ const state = {
 						models.buttons.postback("Nope", POSTBACKS.NO)
 					]);
 				}, 1000);
-			}, 1000);
+			});
 
 			return state.city_search;
 		}
@@ -660,7 +670,7 @@ app.route("/webhook")
 		}
 	});
 
-//if (!DEV_MODE) {
+if (!DEV_MODE) {
 	api.profile(models.profile.config(
 		SCRIPTS.WELCOME_TITLE + "\n\n" + SCRIPTS.WELCOME_MESSAGE,
 		models.profile.menu([
@@ -669,7 +679,7 @@ app.route("/webhook")
 			models.buttons.menu("Help", URL("/help"))
 		])
 	));
-//}
+}
 
 app.listen(PORT, () => {
 	console.log("b00k1ng b0t - ONLINE.");
