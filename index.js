@@ -48,7 +48,11 @@ const SIZE = {
 	LARGE: "large"
 };
 const POSTBACKS = {
-	GET_STARTED: "GET_STARTED"
+	GET_STARTED: "GET_STARTED",
+	YES: "YES",
+	NO: "NO",
+	TRIPS: "TRIPS",
+	HELP: "HELP"
 };
 const ACTION = {
 	MARK_SEEN: "mark_seen",
@@ -88,6 +92,14 @@ const TAG = {
 	PERSONAL_FINANCE_UPDATE: "PERSONAL_FINANCE_UPDATE",
 	PAYMENT_UPDATE: "PAYMENT_UPDATE",
 	NON_PROMOTIONAL_SUBSCRIPTION: "NON_PROMOTIONAL_SUBSCRIPTION"
+};
+
+const SCRIPTS = {
+	WELCOME_TITLE: "Hi I'm b00k1ng b0t 🤖️",
+	WELCOME_MESSAGE: "I'm here to help you plan a trip! 🏖️\
+	I'm especially helpful if you're travelling with a group.\
+	Making decisions will be super easy when you share your trip in you and your friends' group chat.",
+	WHERE_ARE_YOU_GOING: "Where are you going? Simply reply with a city name 🧐️",
 };
 
 
@@ -148,6 +160,15 @@ const models = {
 				webview_height_ratio: size,
 				messenger_extensions: true
 			};
+		},
+		click: (url, size = SIZE.TALL, share = false) => {
+			return {
+				type: BUTTON.URL,
+				url: url,
+				webview_height_ratio: size,
+				messenger_extensions: true,
+				webview_share_button: share
+			}
 		},
 		url: (label, url, size = SIZE.TALL, share = false) => {
 			return Object.assign(
@@ -293,13 +314,26 @@ const models = {
 	
 	elements: {
 		element: (title, subtitle, image_url, click, buttons) => {
-			return {
+			let o = {
 				title: title,
 				subtitle: subtitle,
-				image_url: image_url,
-				default_action: click,
-				buttons: buttons
+			};
+			if (image_url) {
+				Object.assign(o, {
+					image_url: image_url
+				});
 			}
+			if (click) {
+				Object.assign(o, {
+					default_action: click
+				});
+			}
+			if (buttons) {
+				Object.assign(o, {
+					buttons: buttons
+				});
+			}
+			return o;
 		},
 		generic: (title, subtitle, image, click, buttons) => {
 			if (buttons.length > 3)
@@ -307,14 +341,19 @@ const models = {
 			return models.elements.element(title, subtitle, image, click, buttons);
 		},
 		list_item: (title, subtitle, image, click, button) => {
-			return models.elements.element(title, subtitle, image, click, ARRAY(button));
+			return models.elements.element(title, subtitle, image, click, button ? ARRAY(button) : undefined);
 		},
 		media: (attachment_id, button, type = ATTACHMENT.VIDEO) => {
-			return {
+			let o = {
 				media_type: type,
-				attachment_id: attachment_id,
-				buttons: ARRAY(button)
+				attachment_id: attachment_id
 			};
+			if (button) {
+				Object.assign(o, {
+					buttons: ARRAY(button)
+				});
+			}
+			return o;
 		}
 	},
 
@@ -420,22 +459,74 @@ const send = {
 	}
 };
 
+// We should create a Proxy for states... which listeners are present is variable.
+const state = {
+	default: {
+		[POSTBACKS.GET_STARTED]: psid => {
+			// TODO: Batch messages...
+			send.generic(psid, models.elements.generic(
+				SCRIPTS.WELCOME_TITLE,
+				SCRIPTS.WELCOME_MESSAGE
+			));
+			send.text(psid, SCRIPTS.WHERE_ARE_YOU_GOING);
+			send.typing_off(psid);
+			return state.city_search;
+		},
+		message: (psid, message) => {
+			send.text(psid, "Calm down.");
+			send.typing_off(psid);
+			return state.default;
+		}
+	},
+	city_search: {
+		[POSTBACKS.YES]: psid => {
+			send.text(psid, "Phew. Glad I got that one right.");
+			return state.default;
+		},
+		[POSTBACKS.NO]: psid => {
+			send.text(psid, "Nae bother. Gi'it another wee go.");
+			send.typing_off(psid);
+			return state.city_search;
+		},
+		message: (psid, message) => {
+			console.log("API: Search Booking.com autocomplete endpoint. This is next.");
+			send.text(psid, "Searching... bee-boo-bop");
+			send.typing_on(psid);
+			setTimeout(() => {
+				send.generic(psid, models.elements.generic(
+					"City Name",
+					"Some tagline about the city.",
+					"http://www.libertasinternational.com/wp-content/uploads/2014/02/amsterdam3.jpg"
+				));
+				send.typing_off(psid);
+			}, 1000);
+		}
+	}
+};
+
 const receive = {
+	_state: state.default,
 	message: event => {
 		let psid = event.sender.id;
 		let message = event.message;
+
 		console.log("RECEIVED MESSAGE:", psid, message);
 
 		send.read_receipt(psid);
+		send.typing_on(psid);
+
+		setTimeout(() => receive._state = receive._state.message(psid, message), 1000);
 	},
 	postback: event => {
 		let psid = event.sender.id;
-		let data = event.postback.payload;
+		let payload = event.postback.payload;
 
-		console.log(psid, data);
+		console.log("RECEIVED POSTBACK:", psid, payload);
 
-		send.read_receipt(psid)
-		// DO SOMETHING WITH THE POSTBACK... USUALLY YOU GOTTA SEND SOMETHIN'
+		send.read_receipt(psid);
+		send.typing_on(psid);
+		
+		setTimeout(() => receive._state = receive._state[payload](psid), 1000);
 	}
 };
 
