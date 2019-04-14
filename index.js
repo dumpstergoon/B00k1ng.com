@@ -93,7 +93,7 @@ app.get('/group', (req, res) => {
 			}
 		});
 
-		res.render("group");
+		res.render("group", data);
 	});
 });
 

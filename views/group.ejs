@@ -1,7 +1,38 @@
+<article id="group" class="Screen">
+	<header>
+		<h1><img src="/assets/logo.png" /></h1>
+	</header>
+	<section id="0">
+		<hgroup>
+			<h2><%= city.name %></h2>
+			<h3><%= duration.start %> - <%= duration.end%></h3>
+			<h4><%= guests %> guests</h4>
+			<img src="<%= city.image %>" />
+		</hgroup>
+		
+		<form>
+			<h1>Which types of accommodation do you prefer?</h1>
+			<ul>
+			<% accommodations.forEach(type => { %>
+				<li>
+					<label><%= type.label %></label>
+					<input type="checkbox" name="accommodation" value="<%= type.id %>" />
+				</li>
+			<% }); %>
+			</ul>
+		</form>
+		
+		<footer>
+			<button>Next</button>
+			<button>Next</button>
+		</footer>
+	</section>
+</article>
+
 <script type="text/javascript">
-	window.extAsyncInit = function() {
-		MessengerExtensions.getContext(
+	// window.extAsyncInit = function() {
+	// 	MessengerExtensions.getContext(
 			
-		);
-	};
+	// 	);
+	// };
 </script>

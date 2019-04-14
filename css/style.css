@@ -42,41 +42,123 @@
 
 /*
 
-	THEME:	
-
-	Booking Blue: #003681 (backgrounds, headers, ...)
-	Com Blue: #32a0e1 (buttons, links, ...)
-
-	Off-White: #fefdf7 (page colour, text, ...)
-	Black: #000000
-	Text: #383838
-
-	Cadium Yellow: #febb02 (Module background colour, input focus border, ...)
-	Warn Yellow: #ffe9ab (Background colour for side-notes or warnings)
-	Beige: #b75f00 (side-note or warning text colour)
-	Light Beige: #faf3eb (background colour for close-able
-	Orange: #ee811c
-	Blood Orange: #fe6226
-
-	Error Red: #e21111
-	Light Red: #ffa9a9
-	Pink: #fae1e1
-
-	Good Green: #0ab21b
-
+	THEME
 
 */
 
 
-body {
-	background-color:#003681;
-	color:#fefdf7;
+html, body {
+	background-color:#fff;
+	color:#383838;
 	font-family:'Trebuchet MS', Helvetica, Arial, Sans-Serif;
 	font-size:100%;
+
+	position:fixed;
+	top:0;
+	left:0;
+	padding:0;
+	margin:0;
+
+	width:100vw;
+	height:100vh;
+	overflow:hidden;
 }
 
 h1, h2, h3, h4, h5, h6 {
+	color:#003681;
 	font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+	margin:0 0 1em 0;
+	padding:0;
+}
+
+h1 {
+	font-size:20pt;
+}
+
+h2 {
+	font-size:16pt;
+}
+
+header {
+	padding:10pt 10pt 0 10pt;
+}
+
+header h1 {
+	margin:0;
+}
+
+hgroup {
+	border:3px solid #003681;
+	border-radius:5px;
+	padding-top:10pt;
+
+	text-align:center;
+	line-height:1em;
+}
+
+hgroup h1, hgroup h2, hgroup h3, hgroup h4 {
+	color:#32a0e1;
+	margin-bottom:0.5em;
+}
+
+hgroup h3 {
+	font-size:11pt;
+	font-weight:normal;
+}
+
+hgroup h4 {
+	color:#003681;
+	font-size:10pt;
+	font-weight:normal;
+}
+
+hgroup img {
+	margin-top:14pt;
+}
+
+img {
+	display:block;
+	max-width:100%;
+}
+
+button {
+	padding:10pt;
+	border:none;
+	background-color:#0084ff;
+	color:#fff;
+	font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+	font-weight:bold;
+}
+
+button:hover {
+	background-color:#003681;
+}
+
+form {
+	margin:20pt 0 10pt;
+}
+
+form ul {
+	list-style:none;
+	padding:0;
+	margin:0;
+}
+
+form li {
+	position:relative;
+	margin:10pt 0 0;
+}
+
+form li label {
+	display:block;
+	border:3px solid #0084ff;
+	border-radius:5px;
+	padding:10pt 0;
+	width:100%;
+	text-align:center;
+	font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+	font-weight:bold;
+	color:#003681;
 }
 
 /*
@@ -86,10 +168,18 @@ h1, h2, h3, h4, h5, h6 {
 */
 .Screen {
 	position:absolute;
+	background-color:#fff;
 	top:0;
 	left:0;
 	width:100%;
-	min-height:100%;
+	height:100%;
+	overflow-x:hidden;
+	overflow-y:scroll;
+	-webkit-overflow-scrolling:touch;
+}
+
+.Screen > section {
+	padding:10pt;
 }
 
 @keyframes spin {
@@ -119,7 +209,6 @@ h1, h2, h3, h4, h5, h6 {
 	Screens
 
 */
-
 #loading_screen {
 	display:flex;
 	flex-direction:column;
@@ -134,4 +223,8 @@ h1, h2, h3, h4, h5, h6 {
 
 #loading_screen .Spinner {
 	font-size:10vw;
+}
+
+#group header h1 img {
+	width:40vw;
 }
