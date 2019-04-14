@@ -461,6 +461,19 @@ const send = {
 			),
 			type
 		);
+	},
+	buttons: (psid, text, buttons, type = MESSAGE.RESPONSE) => {
+		send.message(
+			psid,
+			models.message(
+				null,
+				models.template(models.payloads.buttons(
+					text,
+					buttons
+				))
+			),
+			type
+		);
 	}
 };
 
@@ -503,28 +516,32 @@ const state = {
 			return state.city_search;
 		},
 		message: (psid, message) => {
-			console.dir(message.entities);
 			let text = message.text.toUpperCase();
-			if (state[text])
-				return state[text](psid);
-			else {
+			
+			// if (state[text])
+			// 	return state[text](psid);
+			
 				send.typing_on(psid);
-				send.text(psid, "🔎️ Searching... bee-boo-bop");
+			send.text(psid, "🔎️ Searching... bee-boo-bop");
+			
+			// Do stuff with this in the search...
+			console.dir(message.nlp.entities);
+
+			setTimeout(() => {
+				send.generic(psid, models.elements.generic(
+					"City Name",
+					"Some tagline about the city.",
+					"http://www.libertasinternational.com/wp-content/uploads/2014/02/amsterdam3.jpg"
+				));
 				setTimeout(() => {
-					send.generic(psid, models.elements.generic(
-						"City Name",
-						"Some tagline about the city.",
-						"http://www.libertasinternational.com/wp-content/uploads/2014/02/amsterdam3.jpg"
-					));
-					setTimeout(() => {
-						send.quick_reply(psid, "Is this the right place?", [
-							models.quick_reply("Yep", POSTBACKS.YES),
-							models.quick_reply("Nope", POSTBACKS.NO)
-						]);
-					}, 1000);
+					send.buttons(psid, "Is this the right place?", [
+						models.buttons.postback("Yep", POSTBACKS.YES),
+						models.buttons.postback("Nope", POSTBACKS.NO)
+					]);
 				}, 1000);
-				return state.city_search;
-			}
+			}, 1000);
+
+			return state.city_search;
 		}
 	},
 	travel_dates: {
