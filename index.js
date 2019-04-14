@@ -596,7 +596,7 @@ const state = {
 
 				send.generic(psid, models.elements.generic(
 					result.label,
-					`Low: ${result.forecast.min_temp_c}ºC - High: ${result.forecast.max_temp_c}ºC ${result.forecast.icon}`,
+					`Low: ${result.forecast.min_temp_c}ºC - High: ${result.forecast.max_temp_c}ºC ${WEATHER[result.forecast.icon]}`,
 					// TODO: Need to fetch a photo from somewhere...
 					`https://b00k1ng.com/assets/images/${result.city_name.toLowerCase()}.jpg`
 				));
