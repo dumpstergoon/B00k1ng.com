@@ -235,7 +235,7 @@ const models = {
 				messenger_extensions: true
 			};
 		},
-		click: (url, size = SIZE.TALL, share = "HIDE") => {
+		click: (url, size = SIZE.TALL, share = HIDE) => {
 			return {
 				type: BUTTON.URL,
 				url: url,
@@ -244,7 +244,7 @@ const models = {
 				webview_share_button: share
 			}
 		},
-		url: (label, url, size = SIZE.TALL, share = "HIDE") => {
+		url: (label, url, size = SIZE.TALL, share = HIDE) => {
 			return Object.assign(
 				models.buttons.menu(label, url, size),
 				{
@@ -758,7 +758,7 @@ const state = {
 							`${state.city_search._region}, ${state.city_search._country}`,
 							state.city_search._image,
 							models.buttons.click(DOMAIN + "/group"),
-							models.buttons.url("View City", state.city_search._url, SIZE.FULL, true)
+							models.buttons.url("View City", state.city_search._url, SIZE.FULL, HIDE)
 						),
 						models.elements.list_item(
 							`${DATE(state.duration._arrive)} to ${DATE(state.duration._arrive)}`,
