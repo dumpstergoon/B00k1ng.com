@@ -106,7 +106,7 @@ const SCRIPTS = {
 	Making decisions will be super easy when you share your trip in you and your friends' group chat.\n\n",
 	
 	WHERE_ARE_YOU_GOING: "Where are you going? Simply reply with a city name 🧐️",
-	
+	CITY_SEARCHING: "🔎️ Searching... beep-boop-bop",
 	CITY_SUCCESS: "Awesome 😎️ We're good at this!",
 	CITY_RETRY: "Let's try again. ",
 	
@@ -589,7 +589,7 @@ const state = {
 		},
 		message: (psid, message) => {
 			send.typing_on(psid);
-			send.text(psid, "🔎️ Searching... bee-boo-bop");
+			send.text(psid, SCRIPTS.CITY_SEARCHING);
 
 			api.autocomplete(message.text, (res, data) => {
 				let result = data.result[0];
@@ -615,8 +615,32 @@ const state = {
 		message: (psid, message) => {
 			console.log("DEEP DIVE BRUH...");
 			console.dir(message);
-			send.text(psid, JSON.stringify(message));
+
+			if (message.nlp.entities.datetime) {
+				send.text(psid, message.nlp.entities.datetime[0].value);
+				send.text(psid, SCRIPTS.DATE_SUCCESS);
+
+				setTimeout(() => {
+					send.text(psid, SCRIPTS.HOW_MANY_NIGHTS);
+				}, 1000);
+
+				return state.duration;
+			}
+
+			send.text(psid, SCRIPTS.DATE_RETRY);
 			return state.travel_dates;
+		}
+	},
+	duration: {
+		message: (psid, message) => {
+			console.log("DURATION.");
+			console.dir(message);
+			console.dir(message.nlp.entities);
+
+			send.text(psid, message.text);
+			send.text(psid, JSON.stringify(message.nlp.entities));
+
+			return state.duration;
 		}
 	}
 };
