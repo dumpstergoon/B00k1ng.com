@@ -698,7 +698,7 @@ const state = {
 				}
 			}
 
-			let checkin = state.duration._checkin;
+			let checkin = state.travel_date._checkin;
 			let checkout = state.duration._checkout = new Date(checkin.getMilliseconds() + (nights * 1000 * 60 * 60 * 24))
 
 			send.text(psid, `Check-in: ${DATE(checkin)}`);
