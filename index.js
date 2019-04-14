@@ -336,7 +336,7 @@ const models = {
 			return o;
 		},
 		generic: (title, subtitle, image, click, buttons) => {
-			if (buttons.length > 3)
+			if (buttons && buttons.length > 3)
 				return console.error("ERROR: Can only have at most 3 buttons.");
 			return models.elements.element(title, subtitle, image, click, buttons);
 		},
