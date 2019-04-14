@@ -211,7 +211,7 @@ const state = {
 				);
 			}, 2000);
 
-			group.begin({
+			group.update({
 				city: city,
 				duration: duration,
 				guests: guests
