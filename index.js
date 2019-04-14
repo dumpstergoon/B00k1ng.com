@@ -769,14 +769,14 @@ const state = {
 						),
 						models.elements.list_item(
 							`${guests} guest${guests > 1 ? 's' : ''}`,
-							`Share this module with your friends to start planning your trip together!`
+							`Share this module with your friends to start planning your trip together! 💃️`
 						),
 					],
-					models.buttons.url("Start Planning", DOMAIN + "/group", SIZE.TALL, HIDE),
+					models.buttons.url("Start Planning", DOMAIN + "/group", SIZE.FULL, HIDE),
 					SIZE.LARGE,
 					true
 				);
-			}, 1000);
+			}, 2000);
 
 			return state.done;
 		}
