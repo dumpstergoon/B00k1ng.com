@@ -108,8 +108,40 @@ const SCRIPTS = {
 	WHERE_ARE_YOU_GOING: "Where are you going? Simply reply with a city name 🧐️",
 	
 	CITY_SUCCESS: "Awesome 😎️ We're good at this!",
-	WHEN_ARE_YOU_GOING: "So, when is your checking-in date?",
-	DATE_HINT: "(eg. October 31st)"
+	CITY_RETRY: "Let's try again. ",
+	
+	WHEN_ARE_YOU_GOING: "So, when is your check-in date?",
+	DATE_HINT: "(eg. October 31st)",
+	DATE_SUCCESS: "Cool.",
+	DATE_RETRY: "Sorry, didn't quite catch that... 😕️",
+
+	HOW_MANY_NIGHTS: "How many nights are staying? ",
+	NIGHTS_SUCCESS: "Almost there!",
+	NIGHTS_RETRY: "Oops. Be sure to put a number!",
+
+	NUMBER_OF_GUESTS: "How many is your group?",
+};
+
+const WEATHER = {
+	cloud: "☁️",
+	partlycloud: "🌥️",
+	lightcloud: "🌤️",
+	sun: "☀️",
+	fog: "🌫️",
+	rain: "☔️",
+	rainthunder: "⛈️",
+	lightrain: "🌧️",
+	lightrainsun: "🌦️",
+	lightrainthunder: "⛈️",
+	lightrainthundersun: "⛈️🌥️",
+	snow: "❄️",
+	snowsun: "❄️🌤️",
+	snowthunder: "❄️🌩️",
+	snowsunthunder: "❄️🌩️🌥️",
+	sleet: "🌨️🌧️",
+	sleetsun: "🌨️🌥️",
+	sleetsunthunder: "🌨️🌥️⛈️",
+	sleetthunder: "🌨️⛈️"
 };
 
 
@@ -546,13 +578,13 @@ const state = {
 					send.text(psid, SCRIPTS.WHEN_ARE_YOU_GOING);
 					setTimeout(() => {
 						send.text(psid, SCRIPTS.DATE_HINT);
-					}, 500);
+					}, 1500);
 				}, 1000);
 			}, 1000);
 			return state.travel_date;
 		},
 		[POSTBACKS.NO]: psid => {
-			send.text(psid, "Nae bother. Gi'it another wee go.");
+			send.text(psid, SCRIPTS.CITY_RETRY);
 			return state.city_search;
 		},
 		message: (psid, message) => {
@@ -564,7 +596,7 @@ const state = {
 
 				send.generic(psid, models.elements.generic(
 					result.label,
-					`Low: ${result.forecast.min_temp_c}ºC - High: ${result.forecast.max_temp_c}ºC`,
+					`Low: ${result.forecast.min_temp_c}ºC - High: ${result.forecast.max_temp_c}ºC ${result.forecast.icon}`,
 					// TODO: Need to fetch a photo from somewhere...
 					`https://b00k1ng.com/assets/images/${result.city_name.toLowerCase()}.jpg`
 				));
