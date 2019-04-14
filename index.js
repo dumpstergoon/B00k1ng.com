@@ -235,7 +235,7 @@ const models = {
 				messenger_extensions: true
 			};
 		},
-		click: (url, size = SIZE.TALL, share = false) => {
+		click: (url, size = SIZE.TALL, share = HIDE) => {
 			return {
 				type: BUTTON.URL,
 				url: url,
@@ -244,7 +244,7 @@ const models = {
 				webview_share_button: share
 			}
 		},
-		url: (label, url, size = SIZE.TALL, share = false) => {
+		url: (label, url, size = SIZE.TALL, share = HIDE) => {
 			return Object.assign(
 				models.buttons.menu(label, url, size),
 				{
