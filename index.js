@@ -642,15 +642,9 @@ const state = {
 	travel_date: {
 		_checkin: Date.now(),
 		message: (psid, message) => {
-			console.log("DEEP DIVE BRUH...");
-			console.dir(message);
-
-			if (message.nlp.entities.datetime) {
-				console.log("========================================");
-				console.log(message.nlp.entities.datetime);
-				console.log("========================================");
-
-				state.travel_date._checkin = (new Date(message.nlp.entities.datetime.value))
+			let datetime = message.nlp.entities.datetime && message.nlp.entities.datetime[0];
+			if (datetime) {
+				state.travel_date._checkin = (new Date(datetime.value))
 				send.text(psid, SCRIPTS.DATE_SUCCESS);
 
 				setTimeout(() => {
