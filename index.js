@@ -30,12 +30,16 @@ const BAD = 403;
 
 const MESSENGER_API = "https://graph.facebook.com/v2.6/me/";
 const BOOKING_API = "https://hackaton_team_graham:B00ndock5!@distribution-xml.booking.com/2.0/json/";
+const PLACES_API = "https://maps.googleapis.com/maps/api/place/findplacefromtext/json";
+const PHOTOS_API = "https://maps.googleapis.com/maps/api/place/photo/";
 
 const APP_ID = 417588018987362;
 const APP_SECRET = "b00k1ng.b0t"
 const PAGE_ACCESS_TOKEN = require("./TOKEN.js");
 const HOME_URL = DOMAIN + "/group";
 const WHITELIST = [DOMAIN];
+
+const PLACES_KEY = "AIzaSyAKzhe2wmODZQRENcpWXJ0qncxYOtFEG1k";
 
 const DEFAULT = "default";
 const SHOW = "show";
@@ -96,13 +100,16 @@ const TAG = {
 
 const SCRIPTS = {
 	WELCOME_TITLE: "Hi I'm b00k1ng b0t 🤖️",
+	
 	WELCOME_MESSAGE: "I'm here to help you plan a trip! 🏖️\
 	I'm especially helpful if you're travelling with a group.\
 	Making decisions will be super easy when you share your trip in you and your friends' group chat.\n\n",
+	
 	WHERE_ARE_YOU_GOING: "Where are you going? Simply reply with a city name 🧐️",
-	WHEN_ARE_YOU_GOING: "Phew. Glad I got that one right.\
-	When are you going?\
-	(eg. from 27 October to 31 October, Sep 1st until Sep 8th, etc...)"
+	
+	CITY_SUCCESS: "Awesome 😎️ We're good at this!",
+	WHEN_ARE_YOU_GOING: "So, when is your checking-in date?",
+	DATE_HINT: "(eg. October 31st)"
 };
 
 
@@ -386,6 +393,18 @@ const api = {
 				console.error("API ERROR:", res.statusCode, res.statusMessage, body.error, params);
 		});
 	},
+	// TODO: implement Places API
+	places: (search_text, fields = ["photos"]) => {
+		// api._(
+		// 	PLACES_API,
+		// 	{
+		// 		key: PLACES_KEY,
+		// 		input: search_text,
+		// 		inputtype: "textquery",
+		// 		fields: fields.join(",")
+		// 	},
+		// );
+	},
 	booking: (end_point, params, success) => {
 		api._(
 			BOOKING_API + end_point,
@@ -520,11 +539,17 @@ const state = {
 	},
 	city_search: {
 		[POSTBACKS.YES]: psid => {
-			send.typing_on(psid);
 			setTimeout(() => {
-				send.text(psid, SCRIPTS.WHEN_ARE_YOU_GOING);
+				send.text(psid, SCRIPTS.CITY_SUCCESS);
+				send.typing_on(psid);
+				setTimeout(() => {
+					send.text(psid, SCRIPTS.WHEN_ARE_YOU_GOING);
+					setTimeout(() => {
+						send.text(psid, SCRIPTS.DATE_HINT);
+					}, 500);
+				}, 1000);
 			}, 1000);
-			return state.travel_dates;
+			return state.travel_date;
 		},
 		[POSTBACKS.NO]: psid => {
 			send.text(psid, "Nae bother. Gi'it another wee go.");
@@ -541,7 +566,7 @@ const state = {
 					result.label,
 					`Low: ${result.forecast.min_temp_c}ºC - High: ${result.forecast.max_temp_c}ºC`,
 					// TODO: Need to fetch a photo from somewhere...
-					"http://www.libertasinternational.com/wp-content/uploads/2014/02/amsterdam3.jpg"
+					`https://b00k1ng.com/assets/images/${result.city_name.toLowerCase()}.jpg`
 				));
 				setTimeout(() => {
 					send.buttons(psid, "Is this the right place?", [
@@ -554,7 +579,7 @@ const state = {
 			return state.city_search;
 		}
 	},
-	travel_dates: {
+	travel_date: {
 		message: (psid, message) => {
 			console.log("DEEP DIVE BRUH...");
 			console.dir(message);
