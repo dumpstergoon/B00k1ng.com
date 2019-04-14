@@ -100,6 +100,9 @@ const SCRIPTS = {
 	I'm especially helpful if you're travelling with a group.\
 	Making decisions will be super easy when you share your trip in you and your friends' group chat.",
 	WHERE_ARE_YOU_GOING: "Where are you going? Simply reply with a city name 🧐️",
+	WHEN_ARE_YOU_GOING: "Phew. Glad I got that one right.\
+	When are you going?\
+	(eg. from 27 October to 31 October, Sep 1st until Sep 8th, etc...)"
 };
 
 
@@ -255,13 +258,14 @@ const models = {
 		return o;
 	},
 
-	quick_reply: (label, icon, postback) => {
-		return {
+	quick_reply: (label, postback, icon) => {
+		return Object.assign({
 			content_type: QUICK_REPLY.TEXT,
 			title: label,
-			image_url: icon,
 			payload: postback || label,
-		}
+		}, icon ? {
+			image_url: icon
+		} : {});
 	},
 
 	attachment: (payload, type = ATTACHMENT.IMAGE) => {
@@ -469,7 +473,7 @@ const state = {
 				_started = true;
 				send.generic(psid, models.elements.generic(
 					SCRIPTS.WELCOME_TITLE,
-					SCRIPTS.WELCOME_MESSAGE
+					"" // What about this?
 				)); // we need like a .then something.....
 			}
 			setTimeout(() => {
@@ -487,9 +491,9 @@ const state = {
 		[POSTBACKS.YES]: psid => {
 			send.typing_on(psid);
 			setTimeout(() => {
-				send.text(psid, "Phew. Glad I got that one right.");
+				send.text(psid, SCRIPTS.WHEN_ARE_YOU_GOING);
 			}, 1000);
-			return state.default;
+			return state.travel_dates;
 		},
 		[POSTBACKS.NO]: psid => {
 			send.text(psid, "Nae bother. Gi'it another wee go.");
@@ -497,16 +501,30 @@ const state = {
 		},
 		message: (psid, message) => {
 			console.log("API: Search Booking.com autocomplete endpoint. This is next.");
-			send.text(psid, "🔎️ Searching... bee-boo-bop");
 			send.typing_on(psid);
+			send.text(psid, "🔎️ Searching... bee-boo-bop");
 			setTimeout(() => {
 				send.generic(psid, models.elements.generic(
 					"City Name",
 					"Some tagline about the city.",
 					"http://www.libertasinternational.com/wp-content/uploads/2014/02/amsterdam3.jpg"
 				));
-				send.typing_off(psid);
+				setTimeout(() => {
+					send.quick_reply(psid, "Is this the right place?", [
+						models.quick_reply("Yep", "YES"),
+						models.quick_reply("Nope", "NO")
+					]);
+				}, 1000);
 			}, 1000);
+			return state.city_search;
+		}
+	},
+	travel_dates: {
+		message: (psid, message) => {
+			console.log("DEEP DIVE BRUH...");
+			console.dir(message);
+			send.text(psid, JSON.stringify(message));
+			return state.travel_dates;
 		}
 	}
 };
