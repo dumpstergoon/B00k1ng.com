@@ -643,8 +643,8 @@ const state = {
 				state.city_search._name = result.city_name;
 				state.city_search._region = result.region;
 				state.city_search._country = result.country_name;
-				state.city_search._image = `https://b00k1ng.com/assets/images/${result.city_name.toLowerCase()}.jpg`;
-				state.city_search._url = `https://duckduckgo.com/?q=${result.city_name}%2C+${result.region}%2C+${result.country_name}&t=h_&ia=weather&iax=about&iaxm=places`;
+				state.city_search._image = `${DOMAIN}/assets/images/${result.city_name.toLowerCase().replace(/\s/gi, '_')}.jpg`;
+				state.city_search._url = `https://duckduckgo.com/?q=${result.city_name}%2C+${result.region}%2C+${result.country_name}&t=h_&ia=weather`;
 
 				send.generic(psid, models.elements.generic(
 					result.label,
@@ -812,7 +812,9 @@ const receive = {
 		console.log("========================================");
 
 		send.read_receipt(psid);
-		setTimeout(() => receive._state = receive._state[payload](psid), 1000);
+		setTimeout(() => {
+			receive._state = receive._state[payload] ? receive._state[payload](psid) : state.default[payload](psid);
+		}, 1000);
 	}
 };
 
