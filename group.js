@@ -16,7 +16,7 @@ let _state = {
 	ready: false
 };
 
-exports.begin = args => {
+exports.update = args => {
 	console.log("GROUP ACTIVITY BEGIN...");
 	console.log("========================================");
 	console.dir(args);
@@ -24,7 +24,7 @@ exports.begin = args => {
 
 	_state = Object.assign(_state, {
 		ready: true,
-	});
+	}, args);
 };
 exports.data = () => {
 	return _state;

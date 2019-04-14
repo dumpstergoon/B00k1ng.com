@@ -58,28 +58,43 @@ app.get('/group', (req, res) => {
 	// This only works once group is doing something...
 	let data = group.data();
 
-	if (data.ready) {
-		// Accommodations
-		data.accommodations = [config.SEARCH.HOTELS, config.SEARCH.APARTMENTS, config.SEARCH.HOSTELS];
-		// Rooms
-		data.rooms = [config.SEARCH.SINGLE, config.SEARCH.DOUBLE, config.SEARCH.MULTIPLE];
-		// Facilities
-		data.facilities = [config.SEARCH.BREAKFAST, config.SEARCH.TEA_COFFEE, config.SEARCH.BATHROOM, config.SEARCH.WIFI, config.SEARCH.POOL, config.SEARCH.PARKING];
-		// Districts
-		api.districts(data.city.id, (res, body) => {
-			let results = data.result;
-			data.city.districts = results.map(result => {
-				return {
-					label: result.name,
-					id: result.district_id
-				}
-			});
-
-			res.render("group");
-		});
-	} else {
-		res.render("help");
+	if (!data.ready) {
+		data = {
+			ready: true,
+			city: {
+				id: '20088325',
+				name: 'New York',
+				region: 'New York State',
+				country: 'USA',
+				image: 'https://b00k1ng.com/assets/images/new_york.jpg',
+				url: 'https://duckduckgo.com/?q=New York%2C+New York State%2C+USA&t=h_&ia=weather'
+			},
+			duration: {
+				start: 'Saturday 3 August',
+				end: 'Wednesday 7 August',
+				days: 4
+			},
+			guests: 2
+		};
 	}
+	// Accommodations
+	data.accommodations = [config.SEARCH.HOTELS, config.SEARCH.APARTMENTS, config.SEARCH.HOSTELS];
+	// Rooms
+	data.rooms = [config.SEARCH.SINGLE, config.SEARCH.DOUBLE, config.SEARCH.MULTIPLE];
+	// Facilities
+	data.facilities = [config.SEARCH.BREAKFAST, config.SEARCH.TEA_COFFEE, config.SEARCH.BATHROOM, config.SEARCH.WIFI, config.SEARCH.POOL, config.SEARCH.PARKING];
+	// Districts
+	api.districts(data.city.id, (res, body) => {
+		let results = data.result;
+		data.city.districts = results.map(result => {
+			return {
+				label: result.name,
+				id: result.district_id
+			}
+		});
+
+		res.render("group");
+	});
 });
 
 // We should make a wee API for testing these messages.
