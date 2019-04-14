@@ -512,8 +512,8 @@ const state = {
 				));
 				setTimeout(() => {
 					send.quick_reply(psid, "Is this the right place?", [
-						models.quick_reply("Yep", "YES"),
-						models.quick_reply("Nope", "NO")
+						models.quick_reply("Yep", POSTBACKS.YES),
+						models.quick_reply("Nope", POSTBACKS.NO)
 					]);
 				}, 1000);
 			}, 1000);
