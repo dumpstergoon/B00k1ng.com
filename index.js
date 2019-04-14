@@ -391,12 +391,7 @@ const api = {
 			BOOKING_API + end_point,
 			params,
 			null,
-			(res, body) => {
-				console.log("========================================");
-				console.log("BOOKING:", body);
-				console.log("========================================");
-				success(res, body);
-			}
+			(res, body) => success(res, JSON.parse(body))
 		);
 	},
 	autocomplete: (text, success) => {
