@@ -425,7 +425,9 @@ const send = {
 	},
 	quick_reply: (psid, text, quick_replies) => {
 		console.log("SENDING QUICK REPLY:", psid, text);
-		console.dir(models.message(text, null, quick_replies));
+		console.dir(
+			models.requests.message(psid, models.message(text, null, quick_replies))
+		);
 		send.message(psid, models.message(text, null, quick_replies));
 	},
 	attachment: (psid, attachment, text) => {
