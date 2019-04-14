@@ -374,8 +374,8 @@ const api = {
 			method: "POST",
 			json: data || {}
 		}, (err, res, body) => {
-			if (!err && res.statusCode === OK && success)
-				success(res, body);
+			if (!err && res.statusCode === OK)
+				success && success(res, body);
 			else if (failure)
 				failure(res, body);
 			else
