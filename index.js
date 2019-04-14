@@ -108,10 +108,10 @@ const SCRIPTS = {
 	WHERE_ARE_YOU_GOING: "Where are you going? Simply reply with a city name 🧐️",
 	CITY_SEARCHING: "🔎️ Searching... beep-boop-bop",
 	CITY_SUCCESS: "Awesome 😎️ We're good at this!",
-	CITY_RETRY: "Let's try again. ",
+	CITY_RETRY: "Let's try again. Which city are you going to?",
 	
 	WHEN_ARE_YOU_GOING: "So, what is your date of arrival?",
-	DATE_HINT: "(eg. October 31st)",
+	DATE_HINT: "(eg. Oct 31, Christmas Eve, ...)",
 	DATE_SUCCESS: "Cool.",
 	DATE_RETRY: "Sorry, didn't quite catch that... 😕️",
 
@@ -176,6 +176,7 @@ const MONTHS = [
 // Makes an array if item isn't one.
 const ARRAY = item => [].concat(item);
 const URL = path => DOMAIN + path;
+const SANITIZE = datestring => datestring.substring(0, datestring.indexOf('T'));
 const DATE = date => `${DAYS[date.getDay()]} ${date.getDate()} ${MONTHS[date.getMonth()]}`;
 const NIGHTS = timespan => {
 	return Math.floor(timespan / 1000 / 60 / 60 / 24);
@@ -634,7 +635,7 @@ const state = {
 				let result = data.result[0];
 
 				if (!result || !result.forecast) {
-					send.text(psid, `No cities with hotels found for "${message.text}. Try again :)"`);
+					send.text(psid, `No cities with hotels found for "${message.text}". Try again :)`);
 					return state.city_search;
 				}
 				
@@ -661,7 +662,7 @@ const state = {
 		message: (psid, message) => {
 			let datetime = message.nlp.entities.datetime && message.nlp.entities.datetime[0];
 			if (datetime) {
-				state.travel_date._checkin = (new Date(datetime.value.substring(0, datetime.value.indexOf('T'))));
+				state.travel_date._checkin = (new Date(SANITIZE(datetime.value)));
 				send.text(psid, SCRIPTS.DATE_SUCCESS);
 
 				setTimeout(() => {
@@ -694,7 +695,7 @@ const state = {
 
 			if (datetime) {
 				let checkin = state.travel_date._checkin;
-				let checkout = (new Date(datetime.value));
+				let checkout = (new Date(SANITIZE(datetime.value)));
 
 				console.log("========================================");
 				console.log(checkin, checkout);
@@ -771,7 +772,9 @@ const state = {
 							`Share this module with your ${guests - 1} friends!`
 						),
 					],
-					models.buttons.share()
+					models.buttons.share(),
+					SIZE.LARGE,
+					true
 				);
 			}, 1000);
 
