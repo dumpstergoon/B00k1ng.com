@@ -84,7 +84,7 @@ app.get('/group', (req, res) => {
 	// Facilities
 	data.facilities = [config.SEARCH.BREAKFAST, config.SEARCH.TEA_COFFEE, config.SEARCH.BATHROOM, config.SEARCH.WIFI, config.SEARCH.POOL, config.SEARCH.PARKING];
 	// Districts
-	api.districts(data.city.id, (res, body) => {
+	api.districts(data.city.id, (_res, body) => {
 		let results = body.result;
 		data.city.districts = results.map(result => {
 			return {
