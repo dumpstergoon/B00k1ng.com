@@ -735,51 +735,51 @@ const state = {
 					return state.duration;
 				}
 			}*/
-		},
-		guests: {
-			_guests: 1,
-			message: (psid, message) => {
-				// USE NLP a wee bit to get number of guests.
-				// Just assume it is a plan number for now
-				let guests = parseInt(message.text);
-				if (isNaN(guests)) {
-					send.text(psid, SCRIPTS.GUESTS_RETRY);
-					return state.guests;
-				}
-				send.text(psid, SCRIPTS.GUESTS_SUCCESS);
-				send.typing_on(psid);
-				setTimeout(() => {
-					send.list(
-						psid,
-						[
-							models.elements.list_item(
-								state.city_search._name,
-								`${state.city_search._region}, ${state.city_search._country}`,
-								state.city_search._image,
-								models.buttons.click(DOMAIN + "/group"),
-								models.buttons.url("View City", state.city_search._url, SIZE.FULL, true)
-							),
-							models.elements.list_item(
-								`${DATE(state.duration._arrive)} to ${DATE(state.duration._arrive)}`,
-								`${state.duration._duration} night stay`
-							),
-							models.elements.list_item(
-								`Guests: ${guests}`,
-								`Share this module with your ${guests - 1} friends!`
-							),
-						],
-						models.buttons.share()
-					);
-				}, 1000);
+		}
+	},
+	guests: {
+		_guests: 1,
+		message: (psid, message) => {
+			// USE NLP a wee bit to get number of guests.
+			// Just assume it is a plan number for now
+			let guests = parseInt(message.text);
+			if (isNaN(guests)) {
+				send.text(psid, SCRIPTS.GUESTS_RETRY);
+				return state.guests;
+			}
+			send.text(psid, SCRIPTS.GUESTS_SUCCESS);
+			send.typing_on(psid);
+			setTimeout(() => {
+				send.list(
+					psid,
+					[
+						models.elements.list_item(
+							state.city_search._name,
+							`${state.city_search._region}, ${state.city_search._country}`,
+							state.city_search._image,
+							models.buttons.click(DOMAIN + "/group"),
+							models.buttons.url("View City", state.city_search._url, SIZE.FULL, true)
+						),
+						models.elements.list_item(
+							`${DATE(state.duration._arrive)} to ${DATE(state.duration._arrive)}`,
+							`${state.duration._duration} night stay`
+						),
+						models.elements.list_item(
+							`Guests: ${guests}`,
+							`Share this module with your ${guests - 1} friends!`
+						),
+					],
+					models.buttons.share()
+				);
+			}, 1000);
 
-				return state.done;
-			}
-		},
-		done: {
-			message: (psid, message) => {
-				send.text(psid, "ECHO: " + message.text);
-				return state.done; // loop
-			}
+			return state.done;
+		}
+	},
+	done: {
+		message: (psid, message) => {
+			send.text(psid, "ECHO: " + message.text);
+			return state.done; // loop
 		}
 	}
 };
