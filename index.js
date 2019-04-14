@@ -425,6 +425,7 @@ const send = {
 	},
 	quick_reply: (psid, text, quick_replies) => {
 		console.log("SENDING QUICK REPLY:", psid, text);
+		console.dir(models.message(text, null, quick_replies));
 		send.message(psid, models.message(text, null, quick_replies));
 	},
 	attachment: (psid, attachment, text) => {
@@ -473,7 +474,7 @@ const state = {
 				_started = true;
 				send.generic(psid, models.elements.generic(
 					SCRIPTS.WELCOME_TITLE,
-					"" // What about this?
+					"Let's get started!" // What about this?
 				)); // we need like a .then something.....
 			}
 			setTimeout(() => {
