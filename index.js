@@ -634,11 +634,10 @@ const state = {
 	duration: {
 		message: (psid, message) => {
 			console.dir(message.nlp.entities);
-			let duration = message.nlp.entities.duration;
+
+			let duration = message.nlp.entities.duration && message.nlp.entities.duration[0];
 			if (duration) {
-				console.dir(duration);
 				if (duration.unit === 'week') {
-					console.log(duration.value, duration.unit + 's');
 					send.text(psid, `${duration.value * 7} nights!`);
 				}
 			} else {
