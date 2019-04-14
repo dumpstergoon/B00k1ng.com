@@ -176,7 +176,7 @@ const MONTHS = [
 // Makes an array if item isn't one.
 const ARRAY = item => [].concat(item);
 const URL = path => DOMAIN + path;
-const DATE = date => `${DAYS[date.getDay()]} ${date.getDate() + 1} ${MONTHS[date.getMonth()]}`;
+const DATE = date => `${DAYS[date.getDay()]} ${date.getDate()} ${MONTHS[date.getMonth()]}`;
 const NIGHTS = timespan => {
 	return Math.floor(timespan / 1000 / 60 / 60 / 24);
 };
@@ -600,10 +600,7 @@ const state = {
 
 			return state.city_search;
 		},
-		message: (psid, message) => {
-			send.text(psid, "Calm down.");
-			return state.default;
-		}
+		message: (psid, message) => state.default[POSTBACKS.GET_STARTED](psid)
 	},
 	city_search: {
 		_id: -1,
@@ -635,6 +632,11 @@ const state = {
 
 			api.autocomplete(message.text, (res, data) => {
 				let result = data.result[0];
+
+				if (!result || !result.forecast) {
+					send.text(psid, `No cities with hotels found for "${message.text}. Try again :)"`);
+					return state.city_search;
+				}
 				
 				state.city_search._id = result.id;
 				state.city_search._name = result.city_name;
@@ -659,7 +661,7 @@ const state = {
 		message: (psid, message) => {
 			let datetime = message.nlp.entities.datetime && message.nlp.entities.datetime[0];
 			if (datetime) {
-				state.travel_date._checkin = (new Date(datetime.value));
+				state.travel_date._checkin = (new Date(datetime.value.substring(0, datetime.value.indexOf('T'))));
 				send.text(psid, SCRIPTS.DATE_SUCCESS);
 
 				setTimeout(() => {
@@ -684,8 +686,8 @@ const state = {
 		},
 		[POSTBACKS.NO] : psid => {
 			send.text(psid, SCRIPTS.NIGHTS_DENIED);
-			setTimeout(() => send.text(psid, SCRIPTS.HOW_MANY_NIGHTS), 1000);
-			return state.duration;
+			setTimeout(() => send.text(psid, SCRIPTS.WHEN_ARE_YOU_GOING), 1000);
+			return state.travel_date;
 		},
 		message: (psid, message) => {
 			let datetime = message.nlp.entities.datetime && message.nlp.entities.datetime[0];
