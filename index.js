@@ -177,6 +177,9 @@ const MONTHS = [
 const ARRAY = item => [].concat(item);
 const URL = path => DOMAIN + path;
 const DATE = date => `${DAYS[date.getDay()]} ${date.getDate() + 1} ${MONTHS[date.getMonth()]}`;
+const NIGHTS = timespan => {
+	return Math.floor(timespan / 1000 / 60 / 60 / 24);
+};
 
 /*
 
@@ -605,6 +608,10 @@ const state = {
 	city_search: {
 		_id: -1,
 		_name: "",
+		_region: "",
+		_country: "",
+		_image: "",
+		_url: "",
 		[POSTBACKS.YES]: psid => {
 			setTimeout(() => {
 				send.text(psid, SCRIPTS.CITY_SUCCESS);
@@ -633,12 +640,13 @@ const state = {
 				state.city_search._name = result.city_name;
 				state.city_search._region = result.region;
 				state.city_search._country = result.country_name;
+				state.city_search._image = `https://b00k1ng.com/assets/images/${result.city_name.toLowerCase()}.jpg`;
+				state.city_search._url = `https://duckduckgo.com/?q=${result.city_name}%2C+${result.region}%2C+${result.country_name}&t=h_&ia=weather&iax=about&iaxm=places`;
 
 				send.generic(psid, models.elements.generic(
 					result.label,
 					`Low: ${result.forecast.min_temp_c}ºC - High: ${result.forecast.max_temp_c}ºC ${WEATHER[result.forecast.icon]}`,
-					// TODO: Need to fetch a photo from somewhere...
-					`https://b00k1ng.com/assets/images/${result.city_name.toLowerCase()}.jpg`
+					state.city_search._image
 				));
 				setTimeout(() => send.yes_no(psid, "Is this the right place?"), 1000);
 			});
@@ -666,6 +674,9 @@ const state = {
 		}
 	},
 	duration: {
+		_arrive: null,
+		_depart: null,
+		_duration: 0,
 		[POSTBACKS.YES]: psid => {
 			send.text(psid, SCRIPTS.NIGHTS_SUCCESS);
 			setTimeout(() => send.text(psid, SCRIPTS.NUMBER_OF_GUESTS), 1500);
@@ -687,8 +698,13 @@ const state = {
 				console.log(checkin, checkout);
 				console.log("========================================");
 
-				send.text(psid, `Arrive: *${DATE(checkin)}* - Depart: *${DATE(checkout)}*`);
-				setTimeout(() => send.yes_no(psid, SCRIPTS.NIGHTS_CONFIRM), 1000);
+				state.duration._arrive = checkin;
+				state.duration._depart = checkout;
+				state.duration._duration = NIGHTS(checkout.getTime() - checkin.getTime());
+
+				send.text(psid, `Arrive: ${DATE(checkin)}`);
+				setTimeout(() => send.text(psid, `Depart: ${DATE(checkout)}`), 1000);
+				setTimeout(() => send.yes_no(psid, SCRIPTS.NIGHTS_CONFIRM), 2000);
 
 				return state.duration;
 			}
@@ -733,13 +749,27 @@ const state = {
 				send.text(psid, SCRIPTS.GUESTS_SUCCESS);
 				send.typing_on(psid);
 				setTimeout(() => {
-					send.list(psid, [
-						models.elements.list_item(
-							state.city_search._name,
-							`${state.city_search._region}, ${state.city_search._country}`,
-							models.buttons.click(DOMAIN + "/group", )
-						)
-					], );
+					send.list(
+						psid,
+						[
+							models.elements.list_item(
+								state.city_search._name,
+								`${state.city_search._region}, ${state.city_search._country}`,
+								state.city_search._image,
+								models.buttons.click(DOMAIN + "/group"),
+								models.buttons.url("View City", state.city_search._url, SIZE.FULL, true)
+							),
+							models.elements.list_item(
+								`${DATE(state.duration._arrive)} to ${DATE(state.duration._arrive)}`,
+								`${state.duration._duration} night stay`
+							),
+							models.elements.list_item(
+								`Guests: ${guests}`,
+								`Share this module with your ${guests - 1} friends!`
+							),
+						],
+						models.buttons.share()
+					);
 				}, 1000);
 
 				return state.done;
