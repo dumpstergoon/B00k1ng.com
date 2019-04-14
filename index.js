@@ -115,7 +115,7 @@ const SCRIPTS = {
 	DATE_SUCCESS: "Cool.",
 	DATE_RETRY: "Sorry, didn't quite catch that... 😕️",
 
-	HOW_MANY_NIGHTS: "How many nights are staying? ",
+	HOW_MANY_NIGHTS: "How long is your visit? ",
 	NIGHTS_SUCCESS: "Almost there!",
 	NIGHTS_RETRY: "Oops. Be sure to put a number!",
 
@@ -617,7 +617,6 @@ const state = {
 			console.dir(message);
 
 			if (message.nlp.entities.datetime) {
-				send.text(psid, message.nlp.entities.datetime[0].value);
 				send.text(psid, SCRIPTS.DATE_SUCCESS);
 
 				setTimeout(() => {
@@ -635,19 +634,28 @@ const state = {
 		message: (psid, message) => {
 			console.dir(message.nlp.entities);
 
+			let nights = 0;
 			let duration = message.nlp.entities.duration && message.nlp.entities.duration[0];
+			
 			if (duration) {
 				if (duration.unit === 'week') {
-					send.text(psid, `${duration.value * 7} nights!`);
+					console.log("WEEK");
+					nights = duration.value * 7;
+				} else if (duration.unit === 'day' || duration.unit === 'night') {
+					console.log("DAY/NIGHT");
+					nights = duration.value;
 				}
 			} else {
-				let nights = parseInt(message.text);
-				if (isNaN(nights))
+				nights = parseInt(message.text);
+				console.log(nights);
+
+				if (isNaN(nights)) {
 					send.text(psid, SCRIPTS.NIGHTS_RETRY);
-				else
-					send.text(psid, `${nights} nights!`);
+					return state.duration;
+				}
 			}
 
+			send.text(psid, `${nights} nights!`);
 			return state.duration;
 		}
 	}
