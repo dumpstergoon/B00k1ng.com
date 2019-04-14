@@ -120,7 +120,7 @@ const SCRIPTS = {
 	NIGHTS_RETRY: "Oops. Give it another go.",
 	NIGHTS_CONFIRM: "Is this correct?? ",
 
-	NUMBER_OF_GUESTS: "How many people are you travelling with? ✈️",
+	NUMBER_OF_GUESTS: "How many people are travelling in your group? ✈️",
 	GUESTS_SUCCESS: "Hooray! 🎉️ Creating your trip...",
 	GUESTS_RETRY: "We're so close! Just pass us a whole number between 1 and 100 :)"
 };
@@ -764,15 +764,15 @@ const state = {
 							models.buttons.url("View City", state.city_search._url, SIZE.FULL, HIDE)
 						),
 						models.elements.list_item(
-							`${DATE(state.duration._arrive)} to ${DATE(state.duration._arrive)}`,
-							`${state.duration._duration} night stay`
+							`${DATE(state.duration._arrive)} to ${DATE(state.duration._depart)}`,
+							`${state.duration._duration} night stay 🌛️`
 						),
 						models.elements.list_item(
-							`Guests: ${guests}`,
-							`Share this module with your ${guests - 1} friends!`
+							`${guests} guest${guests > 1 ? 's' : ''}`,
+							`Share this module with your friends to start planning your trip together!`
 						),
 					],
-					models.buttons.share(),
+					models.buttons.url("Start Planning", DOMAIN + "/group", SIZE.TALL, HIDE),
 					SIZE.LARGE,
 					true
 				);
