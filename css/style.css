@@ -264,6 +264,11 @@ footer {
 
 footer button {
 	flex-grow:1;
+	margin-left:10pt;
+}
+
+footer button:first-child {
+	margin-left:0;
 }
 
 section {
