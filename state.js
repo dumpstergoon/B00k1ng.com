@@ -214,6 +214,7 @@ const state = {
 					send.typing_on(psid);
 					setTimeout(() => {
 						send.text(psid, `I have saved ${city.name}, ${city.country} in "My Trips"`);
+						send.text(psid, "You will now see Booking Bot in your messenger drawer, you can access this anytime.");
 						send.typing_on(psid);
 						send.attachment(
 							psid,
@@ -227,7 +228,7 @@ const state = {
 						setTimeout(() => {
 							send.text(psid, "Start a group chat in messenger with your fellow travellers, or open an existing one. Booking Bot will help the group easily vote and book the best fit for all.");
 							setTimeout(() => send.text(psid, "Bon voyage! ✈️"), 1500);
-						}, 2000);
+						}, 6000);
 					}, 3000);
 				}, 2000);
 			}, 2000);
