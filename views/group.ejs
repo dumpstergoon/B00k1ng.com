@@ -260,10 +260,45 @@
 			APP_ID,
 			context => {
 				console.log("HERE:", context.psid);
+
+				// Let's create our share object... it's gonna be....
+				// It'll just be tempalte for now...
+				MessengerExtensions.beginShareFlow(
+					success => {
+						console.log("Noice! Item shared.");
+					},
+					error => {
+						console.error("Ooops. Something went wrong.");
+					},
+					{
+						attachment: {
+							type: "template",
+							payload: {
+								template_type: "generic",
+								elements: [{
+									title: "Results found for <%= city.name %> 💪️",
+									image_url: "<%= city.image %>",
+									subtitle: "Everyone subitted. Check out the results!",
+									default_action: {
+										type: "web_url",
+										url: "https://b00k1ng.com/results"
+									},
+									buttons:[{
+										type: "web_url",
+										url: "https://b00k1ng.com/results",
+										title: "Pick your favourites"
+									}]
+								}]
+							}
+						}
+					},
+					"current_thread"
+				);
+
 				MessengerExtensions.requestCloseBrowser(success => {
 					console.log('CLOSING!');
 				},  error => {
-					console.log('Why no?');
+					console.error('Why no?');
 				});
 			},
 			error => {
