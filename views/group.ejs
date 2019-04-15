@@ -121,6 +121,96 @@
 			</footer>
 		</section>
 
+		<section id="4">
+			<hgroup>
+				<h2><%= city.name %></h2>
+				<h3><%= duration.start %> - <%= duration.end%></h3>
+				<h4><%= guests %> guests</h4>
+				<img src="<%= city.image %>" />
+			</hgroup>
+			
+			<form>
+				<h1>Would you like to see hotel ratings?</h1>
+				<div id="rating_ui">⭐️⭐️⭐️</div>
+				<ul>
+					<li>
+						<input id="rating" type="range" min="1" max="5" value="3" />
+						<label>Min <em id="rating_out">3</em> out of 5</label>
+					</li>
+				</ul>
+			</form>
+			
+			<footer>
+				<button class="Skip">No Thanks</button>
+				<button class="Next">Next</button>
+			</footer>
+		</section>
+
+		<section id="5">
+			<hgroup>
+				<h2><%= city.name %></h2>
+				<h3><%= duration.start %> - <%= duration.end%></h3>
+				<h4><%= guests %> guests</h4>
+				<img src="<%= city.image %>" />
+			</hgroup>
+			
+			<form>
+				<h1>Would you like to see customer reviews?</h1>
+				<div id="review_ui">7.5</div>
+				<ul>
+					<li>
+						<input id="review" type="range" min="10" max="100" value="75" />
+						<label>Min <em id="review_out">7.5</em> out of 10</label>
+					</li>
+				</ul>
+			</form>
+			
+			<footer>
+				<button class="Skip">No Thanks</button>
+				<button class="Next">Next</button>
+			</footer>
+		</section>
+
+
+		<section id="6">
+			<hgroup>
+					<h2><%= city.name %></h2>
+					<h3><%= duration.start %> - <%= duration.end%></h3>
+					<h4><%= guests %> guests</h4>
+				<img src="<%= city.image %>" />
+			</hgroup>
+			
+			<form>
+				<h1>Cost per night?</h1>
+				<div id="price_out"></div>
+				<ul>
+					<li>
+						<input id="price" type="range" min="40" max="150" value="80" />
+						<label>Max price per night per person</label>
+					</li>
+				</ul>
+			</form>
+			
+			<footer>
+				<button class="Skip">Don't Mind</button>
+				<button class="Next">Next</button>
+			</footer>
+		</section>
+
+		<section id="7">
+			<hgroup style="margin:0; border:none;">
+				<img style="margin:0;" src="assets/backdrop.jpg" />
+			</hgroup>
+			
+			<div id="well_done">
+				<h1>Well Done!</h1>
+				<p class="Special">Once the rest of your group votes on search criteria, you'll see a list of accommodation to choose from.</p>
+			</div>
+
+			<footer>
+				<button class="Close">Close</button>
+			</footer>
+		</section>
 
 	</section>
 </article>
@@ -130,10 +220,23 @@
 	let _pane = _root.getElementsByClassName('Pane')[0];
 	let _panes = Array.from(_pane.getElementsByTagName('section'));
 	let _nexts = Array.from(_pane.getElementsByTagName('button'));
+
+
 	let _slider = document.getElementById('slider');
 	let _slider_out = document.getElementById('slider_out');
 
-	let _current = 0;
+	let _rating = document.getElementById('rating');
+	let _rating_out = document.getElementById('rating_out');
+	let _rating_ui = document.getElementById('rating_ui');
+
+	let _review = document.getElementById('review');
+	let _review_out = document.getElementById('review_out');
+	let _review_ui = document.getElementById('review_ui');
+
+	let _price = document.getElementById('price');
+	let _price_out = document.getElementById('price_out');
+
+	let _current = 0; //⭐️
 
 	let incr = (curr, max) => curr === max ? 0 : curr + 1;
 	let decr = (curr, max) => curr === 0 ? max : curr - 1;
@@ -145,12 +248,48 @@
 		return _current;
 	};
 
+	let close = () => {
+		// TODO: We need to call the SDK here... Do by 4am
+	};
 	let next = () => nav(_current, _panes.length - 1, incr);
 	let prev = () => nav(_current, _panes.length - 1, decr);
-	let slider_output = value => _slider_out.innerHTML = value;
+	let update = (target, value) => target.innerHTML = value;
+	let render_stars = quantity => {
+		let output = "";
+		while(quantity > 0) {
+			output += "⭐️";
+			quantity--;
+		}
+		return output;
+	};
+	let render_price = price => {
+		return `£${price}${price == 150 ? '+' : ''}`;
+	};
 
-	slider_output(_slider.value);
-	_slider.addEventListener('input', e => slider_output(e.target.value));
+	update(_slider_out, _slider.value);
+	
+	update(_rating_out, _rating.value);
+	update(_rating_ui, render_stars(parseInt(_rating.value)));
+
+	update(_review_out, _review.value / 10);
+	update(_review_ui, _review.value / 10);
+
+	update(_price_out, render_price(_price.value));
+
+	_slider.addEventListener('input', e => update(_slider_out, e.target.value));
+	_rating.addEventListener('input', e => {
+		update(_rating_out, e.target.value);
+		update(_rating_ui, render_stars(parseInt(e.target.value)));
+	});
+	_review.addEventListener('input', e => {
+		let out = String(e.target.value / 10);
+		if (out !== "10")
+			out = out.indexOf('.') > -1 ? out : out + '.0';
+		update(_review_out, out);
+		update(_review_ui, out);
+	});
+	_price.addEventListener('input', e => update(_price_out, render_price(e.target.value)));
+
 	_nexts.forEach(button => {
 		button.addEventListener('click', e => {
 			let name = e.target.getAttribute('class');
@@ -160,6 +299,8 @@
 				next();
 			else if (name === 'Skip')
 				next();
+			else if (name === 'Close')
+				close();
 		}, false);
 	});
 </script>
