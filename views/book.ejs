@@ -3,20 +3,41 @@
 		<h1><img src="/assets/logo.png" /></h1>
 	</header>
 	<section class="Hotel">
-		<img src="/assets/book.jpg" />
+		<img id="0" src="/assets/book.jpg" />
+		<img id="1" src="/assets/guests.jpg" />
+		<img id="2" src="/assets/receipt.jpg" />
 		<footer>
 			<button id="rooms" class="Next">Select Rooms</button>
 		</footer>
 	</section>
 </article>
-<!--
+
 <script type="text/javascript">
+	let APP_ID = <%= APP_ID %>;
+
+	let _current = 0;
+	let BUTTONS = ["Select Rooms", "Book Rooms", "Confirm Booking"];
+	let _hotel = document.getElementsByClassName('Hotel')[0];
+	let _images = Array.from(_hotel.getElementsByTagName('img'));
+	let _rooms = document.getElementById('rooms');
+
+	let incr = (curr, max) => curr === max ? 0 : curr + 1;
+	let decr = (curr, max) => curr === 0 ? max : curr - 1;
+
+	let nav = (curr, max, oper) => {
+		_images[_current].style.display = 'none';
+		_current = oper(_current, max);
+		_images[_current].style.display = 'block';
+		return _current;
+	};
+
+	let next = () => nav(_current, _images.length - 1, incr);
+	let prev = () => nav(_current, _images.length - 1, decr);
+
 	let close = () => {
-		console.log("Here, yo.");
 		MessengerExtensions.getContext(
 			APP_ID,
 			context => {
-				console.log("HERE:", context.psid);
 
 				// Let's create our share object... it's gonna be....
 				// It'll just be tempalte for now...
@@ -33,19 +54,17 @@
 							payload: {
 								template_type: "generic",
 								elements: [{
-									title: "Everyone chose and the top pick is ready!",
-									image_url: "https://r-ak.bstatic.com/images/hotel/max1024x768/112/112103620.jpg",
-									subtitle: "Just a few click aways from <%= city.name %>",
+									title: "Congrats! Your trip is now booked 😎️",
+									image_url: "<%= city.image %>",
+									subtitle: "Check out stuff to do during your visit.",
 									default_action: {
 										type: "web_url",
-										url: "https://b00k1ng.com/book",
-										messenger_extensions: true
+										url: "<%= city.url %>",
 									},
 									buttons:[{
 										type: "web_url",
-										url: "https://b00k1ng.com/book",
-										title: "Book Now",
-										messenger_extensions: true
+										url: "<%= city.url %>",
+										title: "Explore <%= city.name %>",
 									}]
 								}]
 							}
@@ -55,7 +74,7 @@
 				);
 
 				MessengerExtensions.requestCloseBrowser(success => {
-					console.log('CLOSING!');
+					console.log('Success!');
 				},  error => {
 					console.error('Why no?');
 				});
@@ -66,6 +85,14 @@
 		);
 	};
 
-	//document.getElementById('rooms').addEventListener('click', close(), false);;
+	_images.forEach((image, index) => {
+		image.style.display = index ? 'none' : 'block';
+	});
+
+	_rooms.addEventListener('click', e => {
+		if (e.target.id == 2)
+			close();
+		_current = next();
+		_rooms.innerHTML = BUTTONS[_current];
+	}, false);
 </script>
--->
