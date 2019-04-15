@@ -1,12 +1,79 @@
 <article id="results" class="Screen">
 	<header>
 		<h1><img src="/assets/logo.png" /></h1>
+		<img class="Icon" src="/assets/filter.png" />
 	</header>
 	<section class="Results">
+		<div class="Tip">
+			TIP: Choose at least 3
+		</div>
+		
+		<img src="/assets/list.jpg" />
+		
 		<ol>
 			<% hotels.forEach(hotel => { %>
 			<li></li>
 			<% }); %>
 		</ol>
+
+		<footer>
+			<button id="close" class="Close">I've picked my favourites ❤️</button>
+		</footer>
 	</section>
 </article>
+<script type="text/javascript">
+	let close = () => {
+		console.log("Here, yo.");
+		MessengerExtensions.getContext(
+			APP_ID,
+			context => {
+				console.log("HERE:", context.psid);
+
+				// Let's create our share object... it's gonna be....
+				// It'll just be tempalte for now...
+				MessengerExtensions.beginShareFlow(
+					success => {
+						console.log("Noice! Item shared.");
+					},
+					error => {
+						console.error("Ooops. Something went wrong.");
+					},
+					{
+						attachment: {
+							type: "template",
+							payload: {
+								template_type: "generic",
+								elements: [{
+									title: "Everyone chose and the top pick is ready!",
+									image_url: "https://r-ak.bstatic.com/images/hotel/max1024x768/112/112103620.jpg",
+									subtitle: "Just a few click aways from <%= city.name %>",
+									default_action: {
+										type: "web_url",
+										url: "https://b00k1ng.com/book"
+									},
+									buttons:[{
+										type: "web_url",
+										url: "https://b00k1ng.com/book",
+										title: "Book Now"
+									}]
+								}]
+							}
+						}
+					},
+					"current_thread"
+				);
+
+				MessengerExtensions.requestCloseBrowser(success => {
+					console.log('CLOSING!');
+				},  error => {
+					console.error('Why no?');
+				});
+			},
+			error => {
+				console.log(error)
+			}
+		);
+	};
+
+	document.getElementById('close').addEventListener('click', close(), false);;
+</script>

@@ -83,8 +83,17 @@ header {
 	padding:10pt 10pt 0 10pt;
 }
 
+header::after {
+	content:".";
+	display:block;
+	height:0;
+	visibility:hidden;
+	clear:both;
+}
+
 header h1 {
 	margin:0;
+	float:left;
 }
 
 hgroup {
@@ -131,6 +140,11 @@ img {
 	max-width:100%;
 }
 
+img.Icon {
+	width:3em;
+	float:right;
+}
+
 p {
 	line-height:1.75em;
 }
@@ -152,6 +166,12 @@ button {
 
 button:hover {
 	background-color:#003681;
+}
+
+ol {
+	list-style:none;
+	margin:0;
+	padding:0;
 }
 
 form {
@@ -300,10 +320,28 @@ section {
 	overflow-x:hidden;
 	overflow-y:scroll;
 	-webkit-overflow-scrolling:touch;
+
+
+	display:flex;
+	flex-direction:column;
+	align-items:left;
+	justify-content:stretch;
 }
 
 .Screen > section {
 	padding:10pt;
+}
+
+.Screen > header {
+	flex:none;
+}
+
+.Screen > section {
+	flex-grow:1;
+}
+
+.Screen > header h1 img {
+	width:40vw;
 }
 
 @keyframes spin {
@@ -338,6 +376,19 @@ section {
 
 .Pane > section:first-child {
 	display:block;
+}
+
+.Tip {
+	text-align:center;
+	background-color:#febb02;
+	color:#003681;
+	padding:5pt 10pt;
+	font-weight:bold;
+	margin:10pt 0;
+}
+
+.Results img, .Hotel img {
+	width:100%;
 }
 
 /*
@@ -392,23 +443,4 @@ section {
 
 #loading_screen .Spinner {
 	font-size:10vw;
-}
-
-#group {
-	display:flex;
-	flex-direction:column;
-	align-items:left;
-	justify-content:stretch;
-}
-
-#group > header {
-	flex:none;
-}
-
-#group > section {
-	flex-grow:1;
-}
-
-#group > header h1 img {
-	width:40vw;
 }

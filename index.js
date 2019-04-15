@@ -94,7 +94,7 @@ app.get('/group', (req, res) => {
 		});
 
 		res.render("group", Object.assign(data, {
-			APP_ID: config.APP_ID
+			APP_ID: config.APP_ID,
 		}));
 	});
 });
@@ -104,7 +104,30 @@ app.get("/results", (req, res) => {
 	// and just return a default search. 'Tis all we need.
 	res.render("results", {
 		APP_ID: config.APP_ID,
-		hotels: []
+		hotels: [],
+		city: {
+			id: '20088325',
+			name: 'New York',
+			region: 'New York State',
+			country: 'USA',
+			image: 'https://b00k1ng.com/assets/images/new_york.jpg',
+			url: 'https://duckduckgo.com/?q=New York%2C+New York State%2C+USA&t=h_&ia=weather'
+		},
+		duration: {
+			start: 'Saturday 3 August',
+			end: 'Wednesday 7 August',
+			days: 4
+		},
+		guests: 2
+	});
+});
+
+app.get("/book", (req, res) => {
+	// Use the same city data....
+	// and just return a default search. 'Tis all we need.
+	res.render("book", {
+		APP_ID: config.APP_ID,
+		hotel: {}
 	});
 });
 
