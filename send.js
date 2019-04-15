@@ -30,9 +30,9 @@ const send = {
 		);
 		send.message(psid, models.message(text, null, quick_replies));
 	},
-	attachment: (psid, attachment, text) => {
-		console.log("SENDING ATTACHMENT:", psid, attachment.type, text);
-		send.message(psid, models.message(text, attachment));
+	attachment: (psid, attachment) => {
+		console.log("SENDING ATTACHMENT:", psid, attachment.type);
+		send.message(psid, models.message(null, attachment));
 	},
 	generic: (psid, elements, sharable = false, type = config.MESSAGE.RESPONSE) => {
 		send.message(

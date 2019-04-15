@@ -222,8 +222,7 @@ const state = {
 									config.DOMAIN + "/assets/images/drawer.jpg",
 									false
 								)
-							),
-							"You will now see Booking Bot in your messenger drawer, you can access this anytime."
+							)
 						);
 						setTimeout(() => {
 							send.text(psid, "Start a group chat in messenger with your fellow travellers, or open an existing one. Booking Bot will help the group easily vote and book the best fit for all.");
