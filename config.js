@@ -141,26 +141,26 @@ exports.SCRIPTS = {
 	
 	WELCOME_MESSAGE: "I'm here to help you plan a trip! 🏖️\
 	I'm especially helpful if you're travelling with a group.\
-	Making decisions will be super easy when you share your trip in you and your friends' group chat.\n\n",
+	Making decisions will be super easy when you add b00k1ng b0t to a group chat.\n\n",
 	
-	WHERE_ARE_YOU_GOING: "Where are you going? Simply reply with a city name 🧐️",
+	WHERE_ARE_YOU_GOING: "Which city are you travelling to? (eg. Amsterdam)",
 	CITY_SEARCHING: "🔎️ Searching... beep-boop-bop",
-	CITY_SUCCESS: "Awesome 😎️ We're good at this!",
-	CITY_RETRY: "Let's try again. Which city are you going to?",
+	CITY_SUCCESS: "Sounds great! 😎️",
+	CITY_RETRY: "Let's try again :) Which city are you going to?",
 	
-	WHEN_ARE_YOU_GOING: "So, what is your date of arrival?",
-	DATE_HINT: "(eg. Oct 31, Christmas Eve, ...)",
-	DATE_SUCCESS: "Cool.",
-	DATE_RETRY: "Sorry, didn't quite catch that... 😕️",
+	WHEN_ARE_YOU_GOING: "When will you arrive?",
+	DATE_HINT: "(eg. Jan 1)",
+	DATE_SUCCESS: "Lovely time of year 😉️",
+	DATE_RETRY: "Sorry, didn't quite catch that... what date are you arriving?",
 
-	HOW_MANY_NIGHTS: "and your leaving date?",
-	NIGHTS_SUCCESS: "Almost there! 🏁️",
-	NIGHTS_RETRY: "Oops. Give it another go.",
-	NIGHTS_CONFIRM: "Is this correct?? ",
+	HOW_MANY_NIGHTS: "and when will you be leaving?",
+	NIGHTS_SUCCESS: "Great! We're almost there 🏁️",
+	NIGHTS_RETRY: "Oops. What date will you be going home?",
+	NIGHTS_CONFIRM: "Is this correct?",
 
-	NUMBER_OF_GUESTS: "How many people are travelling in your group? ✈️",
+	NUMBER_OF_GUESTS: "What's the size of your group?",
 	GUESTS_SUCCESS: "Hooray! 🎉️ Creating your trip...",
-	GUESTS_RETRY: "We're so close! Just pass us a whole number between 1 and 100 :)"
+	GUESTS_RETRY: "Try a whole number between 1 and 100 :)"
 };
 
 exports.WEATHER = {
