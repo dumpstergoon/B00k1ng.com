@@ -216,6 +216,7 @@
 </article>
 
 <script type="text/javascript">
+	let APP_ID = <%= APP_ID %>;
 	let _root = document.getElementById('group');
 	let _pane = _root.getElementsByClassName('Pane')[0];
 	let _panes = Array.from(_pane.getElementsByTagName('section'));
@@ -236,7 +237,12 @@
 	let _price = document.getElementById('price');
 	let _price_out = document.getElementById('price_out');
 
-	let _current = 0; //⭐️
+	let _current = 0;
+
+	/*
+		Messenger SDK shiz... be quick with this!! 3am cut-off.
+	*/
+	
 
 	let incr = (curr, max) => curr === max ? 0 : curr + 1;
 	let decr = (curr, max) => curr === 0 ? max : curr - 1;
@@ -249,7 +255,21 @@
 	};
 
 	let close = () => {
-		// TODO: We need to call the SDK here... Do by 4am
+		console.log("Here, yo.");
+		MessengerExtensions.getContext(
+			APP_ID,
+			context => {
+				console.log("HERE:", context.psid);
+				MessengerExtensions.requestCloseBrowser(success => {
+					console.log('CLOSING!');
+				},  error => {
+					console.log('Why no?');
+				});
+			},
+			error => {
+				console.log(error)
+			}
+		);
 	};
 	let next = () => nav(_current, _panes.length - 1, incr);
 	let prev = () => nav(_current, _panes.length - 1, decr);

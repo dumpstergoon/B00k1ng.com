@@ -93,7 +93,9 @@ app.get('/group', (req, res) => {
 			}
 		});
 
-		res.render("group", data);
+		res.render("group", Object.assign(data, {
+			APP_ID: config.APP_ID
+		}));
 	});
 });
 
