@@ -99,6 +99,15 @@ app.get('/group', (req, res) => {
 	});
 });
 
+app.get("/results", (req, res) => {
+	// Use the same city data....
+	// and just return a default search. 'Tis all we need.
+	res.render("results", {
+		APP_ID: config.APP_ID,
+		hotels: []
+	});
+});
+
 // We should make a wee API for testing these messages.
 app.route("/webhook")
 	.get((req, res) => {
