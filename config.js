@@ -31,11 +31,11 @@ exports.SEARCH = {
 		id: 203
 	},
 	SINGLE: {
-		label: "Single",
+		label: "My own room",
 		id: 10
 	},
 	DOUBLE: {
-		label: "Double",
+		label: "Double rooms",
 		id: 9
 	},
 	TRIPLE: {
@@ -47,7 +47,7 @@ exports.SEARCH = {
 		id: 4
 	},
 	MULTIPLE: {
-		label: "Multiple",
+		label: "I'd like to share 2+",
 		id: -1
 	},
 

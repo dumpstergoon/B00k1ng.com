@@ -2,36 +2,129 @@
 	<header>
 		<h1><img src="/assets/logo.png" /></h1>
 	</header>
-	<section id="0">
-		<hgroup>
-			<h2><%= city.name %></h2>
-			<h3><%= duration.start %> - <%= duration.end%></h3>
-			<h4><%= guests %> guests</h4>
-			<img src="<%= city.image %>" />
-		</hgroup>
-		
-		<form>
-			<h1>Which types of accommodation do you prefer?</h1>
-			<ul>
-			<% accommodations.forEach(type => { %>
-				<li>
-					<input type="checkbox" name="accommodation" value="<%= type.id %>" />
-					<label><%= type.label %></label>
-				</li>
-			<% }); %>
-			</ul>
-		</form>
-		
-		<footer>
-			<button>Next</button>
-		</footer>
+	<section class="Pane">
+		<section id="0">
+			<hgroup>
+				<h2><%= city.name %></h2>
+				<h3><%= duration.start %> - <%= duration.end%></h3>
+				<h4><%= guests %> guests</h4>
+				<img src="<%= city.image %>" />
+			</hgroup>
+			
+			<form>
+				<h1>Which types of accommodation do you prefer?</h1>
+				<ul>
+				<% accommodations.forEach(type => { %>
+					<li>
+						<input type="checkbox" name="accommodation" value="<%= type.id %>" />
+						<label><%= type.label %></label>
+					</li>
+				<% }); %>
+				</ul>
+			</form>
+			
+			<footer>
+				<button class="Next">Next</button>
+			</footer>
+		</section>
+
+		<section id="1">
+			<hgroup>
+				<h2><%= city.name %></h2>
+				<h3><%= duration.start %> - <%= duration.end%></h3>
+				<h4><%= guests %> guests</h4>
+				<img src="<%= city.image %>" />
+			</hgroup>
+			
+			<form>
+				<h1>Which types of rooms do you prefer?</h1>
+				<ul>
+				<% rooms.forEach(room => { %>
+					<li>
+						<input type="checkbox" name="room" value="<%= room.id %>" />
+						<label><%= room.label %></label>
+					</li>
+				<% }); %>
+				</ul>
+			</form>
+			
+			<footer>
+				<button class="Back">Back</button>
+				<button class="Next">Next</button>
+			</footer>
+		</section>
+
+
+		<section id="2">
+				<hgroup>
+					<h2><%= city.name %></h2>
+					<h3><%= duration.start %> - <%= duration.end%></h3>
+					<h4><%= guests %> guests</h4>
+					<img src="<%= city.image %>" />
+				</hgroup>
+				
+				<form>
+					<h1>Would you like to stay near a specific area?</h1>
+					<ul>
+						<li>
+							<input type="checkbox" name="room" value="1" />
+							<label>City Centre</label>
+						</li>
+						<li>
+							<select>
+								<% city.districts.forEach(district => { %>
+									<option value="<%= district.id %>"><%= district.label %></option>
+								<% }); %>
+							</select>
+						</li>
+						<li>
+							<input id="slider" type="range" min="1" max="12" value="4" />
+							<label>Max <em id="slider_out">1</em> km away</label>
+						</li>
+					</ul>
+				</form>
+				
+				<footer>
+					<button class="Back">Back</button>
+					<button class="Next">Next</button>
+				</footer>
+			</section>
 	</section>
 </article>
 
 <script type="text/javascript">
-	// window.extAsyncInit = function() {
-	// 	MessengerExtensions.getContext(
-			
-	// 	);
-	// };
+	let _root = document.getElementById('group');
+	let _pane = _root.getElementsByClassName('Pane')[0];
+	let _panes = Array.from(_pane.getElementsByTagName('section'));
+	let _nexts = Array.from(_pane.getElementsByTagName('button'));
+	let _slider = document.getElementById('slider');
+	let _slider_out = document.getElementById('slider_out');
+
+	let _current = 0;
+
+	let incr = (curr, max) => curr === max ? 0 : curr + 1;
+	let decr = (curr, max) => curr === 0 ? max : curr - 1;
+
+	let nav = (curr, max, oper) => {
+		_panes[_current].style.display = 'none';
+		_current = oper(_current, max);
+		_panes[_current].style.display = 'block';
+		return _current;
+	};
+
+	let next = () => nav(_current, _panes.length, incr);
+	let prev = () => nav(_current, _panes.length, decr);
+	let slider_output = value => _slider_out.innerHTML = value;
+
+	slider_output(_slider.value);
+	_slider.addEventListener('input', e => slider_output(e.target.value));
+	_nexts.forEach(button => {
+		button.addEventListener('click', e => {
+			let name = e.target.getAttribute('class');
+			if (name === 'Back')
+				prev();
+			else if (name === 'Next')
+				next();
+		}, false);
+	});
 </script>
