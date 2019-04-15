@@ -24,19 +24,21 @@
 <script type="text/javascript">
 	let APP_ID = <%= APP_ID %>;
 	let close = () => {
-		console.log("Here, yo.");
+		alert('clicked');
 		MessengerExtensions.getContext(
 			APP_ID,
 			context => {
-				console.log("HERE:", context.psid);
+				alert('Here...' + context.psid);
 
 				// Let's create our share object... it's gonna be....
 				// It'll just be tempalte for now...
 				MessengerExtensions.beginShareFlow(
 					success => {
+						alert('success?');
 						console.log("Noice! Item shared.");
 					},
 					error => {
+						alert(error);
 						console.error("Ooops. Something went wrong.");
 					},
 					{
@@ -67,7 +69,7 @@
 				);
 
 				MessengerExtensions.requestCloseBrowser(success => {
-					console.log('CLOSING!');
+					alert('CLOSING!');
 				},  error => {
 					console.error('Why no?');
 				});
