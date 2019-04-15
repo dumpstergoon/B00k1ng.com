@@ -22,6 +22,7 @@
 	</section>
 </article>
 <script type="text/javascript">
+	let APP_ID = <%= APP_ID %>;
 	let close = () => {
 		console.log("Here, yo.");
 		MessengerExtensions.getContext(
@@ -49,12 +50,14 @@
 									subtitle: "Just a few click aways from <%= city.name %>",
 									default_action: {
 										type: "web_url",
-										url: "https://b00k1ng.com/book"
+										url: "https://b00k1ng.com/book",
+										messenger_extensions: true
 									},
 									buttons:[{
 										type: "web_url",
 										url: "https://b00k1ng.com/book",
-										title: "Book Now"
+										title: "Book Now",
+										messenger_extensions: true
 									}]
 								}]
 							}

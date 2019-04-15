@@ -9,3 +9,63 @@
 		</footer>
 	</section>
 </article>
+<!--
+<script type="text/javascript">
+	let close = () => {
+		console.log("Here, yo.");
+		MessengerExtensions.getContext(
+			APP_ID,
+			context => {
+				console.log("HERE:", context.psid);
+
+				// Let's create our share object... it's gonna be....
+				// It'll just be tempalte for now...
+				MessengerExtensions.beginShareFlow(
+					success => {
+						console.log("Noice! Item shared.");
+					},
+					error => {
+						console.error("Ooops. Something went wrong.");
+					},
+					{
+						attachment: {
+							type: "template",
+							payload: {
+								template_type: "generic",
+								elements: [{
+									title: "Everyone chose and the top pick is ready!",
+									image_url: "https://r-ak.bstatic.com/images/hotel/max1024x768/112/112103620.jpg",
+									subtitle: "Just a few click aways from <%= city.name %>",
+									default_action: {
+										type: "web_url",
+										url: "https://b00k1ng.com/book",
+										messenger_extensions: true
+									},
+									buttons:[{
+										type: "web_url",
+										url: "https://b00k1ng.com/book",
+										title: "Book Now",
+										messenger_extensions: true
+									}]
+								}]
+							}
+						}
+					},
+					"current_thread"
+				);
+
+				MessengerExtensions.requestCloseBrowser(success => {
+					console.log('CLOSING!');
+				},  error => {
+					console.error('Why no?');
+				});
+			},
+			error => {
+				console.log(error)
+			}
+		);
+	};
+
+	//document.getElementById('rooms').addEventListener('click', close(), false);;
+</script>
+-->
